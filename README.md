@@ -24,4 +24,4 @@ You can configure the stack as well (under development)
 
 
 
-The tool uses the basic features without much dependencies, only JS library: domarrow is used.
+The tool uses the basic features without much dependencies, only JS library: domarrow is used: https://github.com/schaumb/domarrow.js  
