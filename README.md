@@ -1,5 +1,6 @@
 # Cloud Native Application Builder
 A simple and innovative way to build cloud native application. To do so you configure the application technology stack. Use the stack to build the cloud native application. Generate the application artifacts as per the application architecture. For example, if you build Quarkus service that stores data in MySQL DB, the tool will generate the quarkus dependencies with dns name of MySQL name as per the architecture.  
+The tool will also generate the deployment artifact for all components based on Kubernates/OpenShift. Think of this tool as a way to handle cloud native applications as a monolith application, from the design, code generation and deployment configurations.  
 At the moment, the tool allow you to design the architecture and save it to JSON and load it back from JSON.  
 Next step to generate the whole stack for you in different technologies.  
 
