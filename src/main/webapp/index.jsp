@@ -17,6 +17,7 @@
     var icon_height=50;
     var canvas_width=1000;
     var canvas_height=500;
+    var currentFormatVersion=1.0;
 
     function startLine(source){
 	//display the selected item details
@@ -184,10 +185,13 @@
 	return content;
     }
     function generateJSON(){
-	var content='{\n"groupId":"'+document.getElementById("groupId").value+'",\n';
+	var content='{\n"format":"'+currentFormatVersion+'",\n';
+        content+='"groupId":"'+document.getElementById("groupId").value+'",\n';
 	content+='"version":"'+document.getElementById("version").value+'",\n';
+        content+='"build":"'+document.getElementById("build").value+'",\n';
 	var allImages = document.getElementsByTagName("img");
-	content+='"images":[\n';
+	var allConnections = document.getElementsByTagName("connection");
+	content+='"components":[\n';
 	var found=false;
 	for (var i=0; i < allImages.length; i++) {
             if(allImages[i].id.indexOf("_")!=-1) {
@@ -199,12 +203,23 @@
                     content+='"src":"'+allImages[i].src+'",\n';
                     content+='"x":"'+allImages[i].style.left+'",\n';
                     content+='"y":"'+allImages[i].style.top+'",\n';
-                    content+='"caption":"'+document.getElementById(allImages[i].id+"_l").innerHTML+'"\n';
-                    content+='}\n';
+                    content+='"caption":"'+document.getElementById(allImages[i].id+"_l").innerHTML+'",\n';
+                    content+='"dependencies":[\n';                    
+                    var depdenceyFound=false;
+                    for (var n=0; n < allConnections.length; n++) {
+                        //only "to" depenencies 
+                        if(allConnections[n].getAttribute('from')=="#"+allImages[i].id){
+                            if(depdenceyFound) content+=',\n';
+                            depdenceyFound=true;
+                            var key=allConnections[n].getAttribute('to').substring(1);                            
+                            content+='{"type":"'+document.getElementById(key).alt+'",\n';
+                            content+='"text":"'+allConnections[n].getAttribute('text')+'"}\n';
+                        }
+                    }
+                    content+=']\n}\n';
             }
 	}
 	content+='],\n';
-	var allConnections = document.getElementsByTagName("connection");
 	content+='"connections":[\n';
 	var found=false;
 	for (var i=0; i < allConnections.length; i++) {
@@ -239,18 +254,18 @@
 	document.getElementById("version").value=mydata.version;
 	var content='';
 	var key="";
-	for (var i=0; i < mydata.images.length; i++) {
-            yy=parseInt(mydata.images[i].y)+icon_height+2;
-            xx=parseInt(mydata.images[i].x)-((getTextWidth(mydata.images[i].caption)-icon_width)/2);
-            key=mydata.images[i].id+'_l';
-            content+=createComponent(mydata.images[i].src,mydata.images[i].type,mydata.images[i].id,mydata.images[i].x,mydata.images[i].y,key,xx,yy,mydata.images[i].caption);
+	for (var i=0; i < mydata.components.length; i++) {
+            yy=parseInt(mydata.components[i].y)+icon_height+2;
+            xx=parseInt(mydata.components[i].x)-((getTextWidth(mydata.components[i].caption)-icon_width)/2);
+            key=mydata.components[i].id+'_l';
+            content+=createComponent(mydata.components[i].src,mydata.components[i].type,mydata.components[i].id,mydata.components[i].x,mydata.components[i].y,key,xx,yy,mydata.components[i].caption);
 	}
 	for (var i=0; i < mydata.connections.length; i++) {
             content+=createConnection(mydata.connections[i].id,mydata.connections[i].from,mydata.connections[i].to,"red",mydata.connections[i].text,' fromX='+mydata.connections[i].fromX+' toX='+mydata.connections[i].toX,' fromY='+mydata.connections[i].fromY+' toY='+mydata.connections[i].toY);
 	}
 	document.getElementById("pannel").innerHTML=content;
 	create();
-	alert("Successfully load "+mydata.images.length+" component(s) and "+mydata.connections.length+" connection(s)");
+	alert("Successfully load "+mydata.components.length+" component(s) and "+mydata.connections.length+" connection(s)");
     }
     function load(){
         document.getElementById("pannel").innerHTML=document.getElementById("save").value;
@@ -358,6 +373,8 @@
                   <input type="text" id="artifactId" name="artifactId" disabled="true" value="{service_name}">
                   <label for="package"> Version:</label>
                   <input type="text" id="version" name="version" placeholder="Enter Version" value="1.0.0-SNAPSHOT">
+                  <label for="package"> Build:</label>
+                  <input type="text" id="build" name="build" disabled="true" value="MAVEN">
                   <input type="text" hidden="true" id="type" name="type" value="1">
                   <textarea id="data" hidden="true" rows=1 cols=100 name="data"></textarea>
             </form>
