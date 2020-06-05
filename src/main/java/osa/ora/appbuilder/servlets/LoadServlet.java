@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 /**
  *
- * @author ooransa
+ * @author Osama Oransa
  */
 @WebServlet(name = "LoadServlet", urlPatterns = {"/LoadServlet"})
 @MultipartConfig
@@ -40,12 +40,6 @@ public class LoadServlet extends HttpServlet {
             //String description = request.getParameter("description"); // Retrieves <input type="text" name="description">
             Part filePart = request.getPart("file"); // Retrieves <input type="file" name="file">
             //String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
-            Collection<String> headers = filePart.getHeaders("content-disposition");
-            if (headers != null)
-            for(String header : headers){
-                System.out.println("CDH: " + header);  
-
-            } 
             String fileName = filePart.getHeader("content-disposition");
             if(!fileName.isEmpty()){
                 fileName=fileName.substring(fileName.indexOf("filename=\"")+10,fileName.lastIndexOf("\""));
@@ -59,9 +53,10 @@ public class LoadServlet extends HttpServlet {
             while ((read = inputStream.read(buf)) != -1) {
                 out.write(buf, 0, read);
             }
-            //out.toByteArray();
+            String data=out.toString();
+            data=data.replaceAll("\n", "").replaceAll("\r", "");
             request.getSession().setAttribute("NAME",  fileName);
-            request.getSession().setAttribute("DATA",  out.toString().replaceAll("\n", "").replaceAll("\r", ""));
+            request.getSession().setAttribute("DATA",  data);
             request.getRequestDispatcher("index.jsp").forward(request, response);
         } catch (IOException e) {
             e.printStackTrace();
