@@ -48,7 +48,7 @@
             return;
 	}
 	//capture the connection caption
-	var caption = prompt("Please enter name", "Uses");
+	var caption = prompt("Please enter name", document.getElementById(obj2).getAttribute("action"));
 	if(caption==null) return;
 	//adjust connection location ..
 	var ylocation=' fromY="0" toY="1" ';
@@ -110,7 +110,7 @@
             xx=x-((getTextWidth(caption)-icon_width)/2);
             key='drag_'+counter+'_l';
             document.getElementById("pannel").innerHTML=document.getElementById("pannel").innerHTML+
-                    createComponent(my_element.src,my_element.alt,'drag_'+counter,x+'px',y+'px',key,xx,yy,caption);
+                    createComponent(my_element.src,my_element.alt,'drag_'+counter,x+'px',y+'px',key,xx,yy,caption,my_element.getAttribute("action"));
             counter++;
         }else{
             var caption=document.getElementById(my_element.id+'_l').textContent;
@@ -119,13 +119,13 @@
             yy=y+icon_height+2;
             xx=x-((getTextWidth(caption)-icon_width)/2);
             key=my_element.id+'_l';
-            document.getElementById("pannel").innerHTML=createComponent(my_element.src,my_element.alt,my_element.id,x+'px',y+'px',key,xx,yy,caption)+
+            document.getElementById("pannel").innerHTML=createComponent(my_element.src,my_element.alt,my_element.id,x+'px',y+'px',key,xx,yy,caption,my_element.getAttribute("action"))+
                     document.getElementById("pannel").innerHTML; 
 	}
     }
     }
-    function createComponent(imgSrc,alt,id,x,y,key,xx,yy,caption){
-	var content='<img src="'+imgSrc+'" alt="'+alt+'" draggable="true" ondragstart="drag(event)" id="'+id+'" onclick="startLine('+id+');" width="'+icon_width+'" height="'+icon_height+'" style="position:absolute; left:'+
+    function createComponent(imgSrc,alt,id,x,y,key,xx,yy,caption,action){
+	var content='<img src="'+imgSrc+'" alt="'+alt+'" action="'+action+'" draggable="true" ondragstart="drag(event)" id="'+id+'" onclick="startLine('+id+');" width="'+icon_width+'" height="'+icon_height+'" style="position:absolute; left:'+
 		x+'; top:'+y+';" class="component">'+
 		'<label id="'+key+'" style="position:absolute; left:'+xx+'px; top:'+yy+'px; font-size:8pt;font-family:arial;font-weight:bold;" onclick="updateCaption('+key+','+parseInt(x)+')">'+caption+'</label>';
 	return content;
@@ -201,6 +201,7 @@
                     content+='"type":"'+allImages[i].alt+'",\n';
                     content+='"id":"'+allImages[i].id+'",\n';
                     content+='"src":"'+allImages[i].src+'",\n';
+                    content+='"action":"'+allImages[i].getAttribute("action")+'",\n';
                     content+='"x":"'+allImages[i].style.left+'",\n';
                     content+='"y":"'+allImages[i].style.top+'",\n';
                     content+='"caption":"'+document.getElementById(allImages[i].id+"_l").innerHTML+'",\n';
@@ -258,7 +259,7 @@
             yy=parseInt(mydata.components[i].y)+icon_height+2;
             xx=parseInt(mydata.components[i].x)-((getTextWidth(mydata.components[i].caption)-icon_width)/2);
             key=mydata.components[i].id+'_l';
-            content+=createComponent(mydata.components[i].src,mydata.components[i].type,mydata.components[i].id,mydata.components[i].x,mydata.components[i].y,key,xx,yy,mydata.components[i].caption);
+            content+=createComponent(mydata.components[i].src,mydata.components[i].type,mydata.components[i].id,mydata.components[i].x,mydata.components[i].y,key,xx,yy,mydata.components[i].caption,mydata.components[i].action);
 	}
 	for (var i=0; i < mydata.connections.length; i++) {
             content+=createConnection(mydata.connections[i].id,mydata.connections[i].from,mydata.connections[i].to,"red",mydata.connections[i].text,' fromX='+mydata.connections[i].fromX+' toX='+mydata.connections[i].toX,' fromY='+mydata.connections[i].fromY+' toY='+mydata.connections[i].toY);
@@ -300,39 +301,39 @@
         <div class="box" width="100%" id="drag1_div" ondrop="drop_back(event)" ondragover="allowDrop(event)" style="vertical-align:top;">
             <h2>Components</h2>
                 <table><tr><td style="border:1px solid black;">
-                <img src="images/quarkus.png" alt="Quarkus" title="Quarkus" draggable="true" ondragstart="drag(event)" id="drag1" width="50" height="50">
+                <img src="images/quarkus.png" alt="Quarkus" title="Quarkus" action="REST" draggable="true" ondragstart="drag(event)" id="drag1" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/java_logo.png" alt="Java" title="Java" draggable="true" ondragstart="drag(event)" id="drag2" width="50" height="50">
+                <img src="images/java_logo.png" alt="Java" title="Java" action="REST" draggable="true" ondragstart="drag(event)" id="drag2" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/spring-boot.png" alt="SpringBoot" title="SpringBoot" draggable="true" ondragstart="drag(event)" id="drag3" width="50" height="50">
+                <img src="images/spring-boot.png" alt="SpringBoot" action="REST" title="SpringBoot" draggable="true" ondragstart="drag(event)" id="drag3" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/nodejs.png" alt="NodeJS" title="NodeJS" draggable="true" ondragstart="drag(event)" id="drag4" width="50" height="50">
+                <img src="images/nodejs.png" alt="NodeJS" title="NodeJS" action="REST" draggable="true" ondragstart="drag(event)" id="drag4" width="50" height="50">
                 </td ></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/mysql.png" alt="MySQL" title="MySQL" draggable="true" ondragstart="drag(event)" id="drag5" width="50" height="50">
+                <img src="images/mysql.png" alt="MySQL" title="MySQL" action="Persist" draggable="true" ondragstart="drag(event)" id="drag5" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/postgresql.png" alt="PostgreSQL" title="PostgreSQL" draggable="true" ondragstart="drag(event)" id="drag6" width="50" height="50">
+                <img src="images/postgresql.png" alt="PostgreSQL" action="Persist" title="PostgreSQL" draggable="true" ondragstart="drag(event)" id="drag6" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/mongodb.png" alt="MongoDB" title="MongoDB" draggable="true" ondragstart="drag(event)" id="drag7" width="50" height="50">
+                <img src="images/mongodb.png" alt="MongoDB" action="Persist" title="MongoDB" draggable="true" ondragstart="drag(event)" id="drag7" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/activemq.png" alt="ActiveMQ" title="ActiveMQ" draggable="true" ondragstart="drag(event)" id="drag8" width="50" height="50">
+                <img src="images/activemq.png" alt="ActiveMQ" action="Pub/Sub" title="ActiveMQ" draggable="true" ondragstart="drag(event)" id="drag8" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/kafka.png" alt="Kafka" title="Kafka" draggable="true" ondragstart="drag(event)" id="drag9" width="50" height="50">
+                <img src="images/kafka.png" alt="Kafka" action="Pub/Sub" title="Kafka" draggable="true" ondragstart="drag(event)" id="drag9" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/redis.png" alt="Redis" title="Redis" draggable="true" ondragstart="drag(event)" id="drag10" width="50" height="50">
+                <img src="images/redis.png" alt="Redis" action="Cache" title="Redis" draggable="true" ondragstart="drag(event)" id="drag10" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/net_core.png" alt=".Net" title=".NetCore"draggable="true" ondragstart="drag(event)" id="drag11" width="50" height="50">
+                <img src="images/net_core.png" alt=".Net" action="REST" title=".NetCore" draggable="true" ondragstart="drag(event)" id="drag11" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/vertx.png" alt="VertX" title="VertX" draggable="true" ondragstart="drag(event)" id="drag12" width="50" height="50">
+                <img src="images/vertx.png" alt="VertX" action="REST" title="VertX" draggable="true" ondragstart="drag(event)" id="drag12" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/knative.png" alt="KNative" title="KNative" draggable="true" ondragstart="drag(event)" id="drag13" width="50" height="50">
+                <img src="images/knative.png" alt="KNative" action="REST" title="KNative" draggable="true" ondragstart="drag(event)" id="drag13" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/3scale.png" alt="3Scale" title="3Scale" draggable="true" ondragstart="drag(event)" id="drag14" width="50" height="50">
+                <img src="images/3scale.png" alt="3Scale" action="REST" title="3Scale" draggable="true" ondragstart="drag(event)" id="drag14" width="50" height="50">
                 </td></tr>
                 </table>
         </div>

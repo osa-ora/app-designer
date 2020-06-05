@@ -13,6 +13,7 @@ public class Component {
     private String id;
     private String type;
     private String src;
+    private String action;
     private String x;
     private String y;
     private String caption;
@@ -114,6 +115,20 @@ public class Component {
      */
     public void setDependencies(Dependency[] dependencies) {
         this.dependencies = dependencies;
+    }
+
+    /**
+     * @return the action
+     */
+    public String getAction() {
+        return action;
+    }
+
+    /**
+     * @param action the action to set
+     */
+    public void setAction(String action) {
+        this.action = action;
     }
     
     
