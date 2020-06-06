@@ -25,6 +25,10 @@ public class QuarkusGenerator implements IGenerator{
         return "quarkus.png";
     }
 
+    @Override
+    public String getDefaultProducerAction() {
+        return "REST";
+    }
 
     @Override
     public String generateDeployment() {
@@ -33,12 +37,14 @@ public class QuarkusGenerator implements IGenerator{
 
     @Override
     public String generateArtifact(String groupId, String version, String build, String caption, Dependency[] dependencies) {
+        //basic maven command to generate the project
         String command="mvn io.quarkus:quarkus-maven-plugin:1.5.0.Final:create"
                 + " -DprojectGroupId="+groupId
                 + " -DprojectArtifactId="+caption
                 + " -DprojectVersion="+version
                 + " -DclassName=\""+groupId+"."+caption+"\"\n";
         command+="cd "+caption+"\n";
+        //execute add all extentions according to service dependencies
         command+=addDependencies("./mvnw quarkus:add-extension -Dextensions=",dependencies);
         command+="cd ..\n";
         return command;
@@ -60,6 +66,9 @@ public class QuarkusGenerator implements IGenerator{
                     break;
                 case "MONGODB":
                     allDep+=command+"\"mongodb-client\"\n";
+                    break;
+                case "ACTIVEMQ":
+                    allDep+=command+"\"activemq\"\n";
                     break;
                 case "KAFKA":
                     allDep+=command+"\"kafka-streams\"\n";

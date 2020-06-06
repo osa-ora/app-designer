@@ -14,6 +14,7 @@ import osa.ora.appbuilder.beans.Dependency;
 public interface IGenerator {
     public String getName();
     public String getIcon();
+    public String getDefaultProducerAction();
     public String generateArtifact(String groupId, String version, String build, String caption, Dependency[] dependencies);
     public String generateDeployment();
 }

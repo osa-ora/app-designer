@@ -107,6 +107,7 @@ public class SaveServlet extends HttpServlet {
         }else if("3".equals(type)){
             String scriptData=(String)request.getSession().getAttribute("SCRIPT");
             response.setHeader("Content-disposition", "attachment; filename=script.sh");
+            //keep the content as json for now as it won't actually matter
             response.setContentType("application/json");
             OutputStream o = response.getOutputStream();
             o.write(scriptData.getBytes());
