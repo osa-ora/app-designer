@@ -54,7 +54,7 @@ public class SaveServlet extends HttpServlet {
         //save the json content of the diagram
         String data=request.getParameter("data");
         //conver path into relative path images/image_name.png
-        data=data.replaceAll(path, "");
+        if(data!=null) data=data.replaceAll(path, "");
         if("1".equals(type)){
             response.setHeader("Content-disposition", "attachment; filename=app.json");
             response.setContentType("application/json");
@@ -64,7 +64,7 @@ public class SaveServlet extends HttpServlet {
             o.close();
         //generate the code ..   
         //TODO: temporary logic to generate the required script to build the application
-        }else{
+        }else if("2".equals(type)){
             OutputStream output = response.getOutputStream();
             //convert to Java object
             Application app=new Gson().fromJson(data, Application.class);
@@ -76,6 +76,7 @@ public class SaveServlet extends HttpServlet {
             output.write(("<h1>Application \""+app.getGroupId()+"\" Generation Script</h1><h2>No of Components:"+app.getComponents().length+"</h2><hr>").getBytes());
             //invoke available generator for each component type
             boolean generatorFound=false;
+            String script="";
             for (Component comp : app.getComponents()) {
                 IGenerator gen=genConfig.getGeneratorForType(comp.getType());               
                 if(gen!=null){
@@ -83,13 +84,16 @@ public class SaveServlet extends HttpServlet {
                     output.write(("<h2>Service:"+comp.getCaption()+"</h2>").getBytes());
                     String commands=gen.generateArtifact(app.getGroupId(), app.getVersion(), app.getBuild(),
                             comp.getCaption(),comp.getDependencies());
+                    script+=commands;
                     output.write(commands.replaceAll("\n", "<br>").getBytes());
                     output.write("<hr>".getBytes());
                 }
             }
             if(generatorFound){
+                request.getSession().setAttribute("SCRIPT",  script);
+                
                 output.write("Back to designer click <b><a href='LoadServlet?type=2'>Here</a><b>.<br>".getBytes());
-                output.write("<red><b>Note:</b> You can copy all scripts into a batch file (.bat or .sh) and execute it to get the project skeleton.</red><br>".getBytes());
+                output.write("Download script file .sh <b><a href='SaveServlet?type=3'>Here</a><b>.<br>".getBytes());
                 output.write("<red><b>Note:</b> For Windows operating system, you need to omit the ./ before the commands.</red><br>".getBytes());
                 output.write("<red><b>Note:</b> The Generated Code is for the current supported generator only.</red><br>".getBytes());
             }else{
@@ -100,6 +104,14 @@ public class SaveServlet extends HttpServlet {
             //or just return the script to be executed
             output.write("<hr><br>".getBytes());
             output.flush();
+        }else if("3".equals(type)){
+            String scriptData=(String)request.getSession().getAttribute("SCRIPT");
+            response.setHeader("Content-disposition", "attachment; filename=script.sh");
+            response.setContentType("application/json");
+            OutputStream o = response.getOutputStream();
+            o.write(scriptData.getBytes());
+            o.flush();
+            o.close();
         }
     }
 
