@@ -106,6 +106,10 @@
         if(my_element.id.indexOf("_")==-1) {
             var caption = prompt("Please enter name", "Service");
             counter++;
+            //make sure no other existing element has the same id
+            while(document.getElementById('drag_'+counter)!=null){
+                counter++;
+            }
             yy=y+icon_height+2;
             xx=x-((getTextWidth(caption)-icon_width)/2);
             key='drag_'+counter+'_l';
@@ -381,7 +385,11 @@
             </form>
             <script>
             <% if(session.getAttribute("DATA")!=null){
-                    out.println("document.getElementById('fileName').innerHTML='["+session.getAttribute("NAME")+"]';");
+                    String name="No Name";
+                    if(session.getAttribute("NAME")!=null){
+                        name=(String)session.getAttribute("NAME");
+                    }
+                    out.println("document.getElementById('fileName').innerHTML='["+name+"]';");
                // out.println("document.getElementById('data').value="+session.getAttribute("DATA")+";");
                     out.println("loadJSON('"+session.getAttribute("DATA")+"');");
                     session.removeAttribute("DATA");
