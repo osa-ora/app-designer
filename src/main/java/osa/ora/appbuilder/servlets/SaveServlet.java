@@ -41,6 +41,7 @@ public class SaveServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String type=request.getParameter("type");
+        if(type==null) type="1";
         //get the path to images to remove it from the save file
         String path="";
         if(request.getProtocol().startsWith("HTTP/", 0)){
@@ -50,7 +51,6 @@ public class SaveServlet extends HttpServlet {
         }
         path+=request.getServerName()+":"+request.getServerPort()+request.getContextPath()+"/";
         //System.out.println("URL="+path);
-        if(type==null) type="1";
         //save the json content of the diagram
         String data=request.getParameter("data");
         //conver path into relative path images/image_name.png
@@ -63,25 +63,43 @@ public class SaveServlet extends HttpServlet {
             o.flush();
             o.close();
         //generate the code ..   
-        //TODO: logic can be improved later
+        //TODO: temporary logic to generate the required script to build the application
         }else{
+            OutputStream output = response.getOutputStream();
+            //convert to Java object
             Application app=new Gson().fromJson(data, Application.class);
-            System.out.println("app:"+app.getGroupId());
-            System.out.println("Components:"+app.getComponents().length);
-            System.out.println("Connections:"+app.getConnections().length);
-            //invoke generator for type
+            //save it to the session
+            data=data.replaceAll("\n", "").replaceAll("\r", "");
+            //request.getSession().setAttribute("NAME",  "");
+            request.getSession().setAttribute("DATA",  data);
+            //System.out.println("app:"+app.getGroupId());
+            output.write(("<h1>Application \""+app.getGroupId()+"\" Generation Script</h1><h2>No of Components:"+app.getComponents().length+"</h2><hr>").getBytes());
+            //invoke available generator for each component type
+            boolean generatorFound=false;
             for (Component comp : app.getComponents()) {
                 IGenerator gen=genConfig.getGeneratorForType(comp.getType());               
                 if(gen!=null){
-                    gen.generateArtifact(app.getGroupId(), app.getVersion(), app.getBuild(),
+                    generatorFound=true;
+                    output.write(("<h2>Service:"+comp.getCaption()+"</h2>").getBytes());
+                    String commands=gen.generateArtifact(app.getGroupId(), app.getVersion(), app.getBuild(),
                             comp.getCaption(),comp.getDependencies());
+                    output.write(commands.replaceAll("\n", "<br>").getBytes());
+                    output.write("<hr>".getBytes());
                 }
-            }    
+            }
+            if(generatorFound){
+                output.write("Back to designer click <b><a href='LoadServlet?type=2'>Here</a><b>.<br>".getBytes());
+                output.write("<red><b>Note:</b> You can copy all scripts into a batch file (.bat or .sh) and execute it to get the project skeleton.</red><br>".getBytes());
+                output.write("<red><b>Note:</b> For Windows operating system, you need to omit the ./ before the commands.</red><br>".getBytes());
+                output.write("<red><b>Note:</b> The Generated Code is for the current supported generator only.</red><br>".getBytes());
+            }else{
+                output.write("<red><b>Sorry:</b> No current generator available for your project components.</red><br>".getBytes());
+            }
             //TODO: return to the user the generated code in zip file
             //or commit it to a git repository
-            OutputStream o = response.getOutputStream();
-            o.write(new Gson().toJson(app).getBytes());
-            o.flush();
+            //or just return the script to be executed
+            output.write("<hr><br>".getBytes());
+            output.flush();
         }
     }
 

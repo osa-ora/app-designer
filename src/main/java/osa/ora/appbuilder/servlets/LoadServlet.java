@@ -35,35 +35,40 @@ public class LoadServlet extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Create a new file upload handler
-        try {
-            //String description = request.getParameter("description"); // Retrieves <input type="text" name="description">
-            Part filePart = request.getPart("file"); // Retrieves <input type="file" name="file">
-            //String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
-            String fileName = filePart.getHeader("content-disposition");
-            if(!fileName.isEmpty()){
-                fileName=fileName.substring(fileName.indexOf("filename=\"")+10,fileName.lastIndexOf("\""));
+        String type=request.getParameter("type");
+        if(type==null) type="1";
+        if(type=="1"){
+            // Create a new file upload handler
+            try {
+                //String description = request.getParameter("description"); // Retrieves <input type="text" name="description">
+                Part filePart = request.getPart("file"); // Retrieves <input type="file" name="file">
+                //String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
+                String fileName = filePart.getHeader("content-disposition");
+                if(!fileName.isEmpty()){
+                    fileName=fileName.substring(fileName.indexOf("filename=\"")+10,fileName.lastIndexOf("\""));
+                }
+                System.out.println("FileName="+fileName);
+                InputStream inputStream = filePart.getInputStream();            
+                final ByteArrayOutputStream out = new ByteArrayOutputStream();
+                //final ServletInputStream inputStream = request.getInputStream();
+                byte[] buf = new byte[1024];
+                int read;
+                while ((read = inputStream.read(buf)) != -1) {
+                    out.write(buf, 0, read);
+                }
+                String data=out.toString();
+                data=data.replaceAll("\n", "").replaceAll("\r", "");
+                request.getSession().setAttribute("NAME",  fileName);
+                request.getSession().setAttribute("DATA",  data);
+                request.getRequestDispatcher("index.jsp").forward(request, response);
+            } catch (IOException e) {
+                e.printStackTrace();
+                request.getSession().setAttribute("ERROR_MSG",  e.getMessage());
+                request.getRequestDispatcher("error.jsp");
             }
-            System.out.println("FileName="+fileName);
-            InputStream inputStream = filePart.getInputStream();            
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            //final ServletInputStream inputStream = request.getInputStream();
-            byte[] buf = new byte[1024];
-            int read;
-            while ((read = inputStream.read(buf)) != -1) {
-                out.write(buf, 0, read);
-            }
-            String data=out.toString();
-            data=data.replaceAll("\n", "").replaceAll("\r", "");
-            request.getSession().setAttribute("NAME",  fileName);
-            request.getSession().setAttribute("DATA",  data);
-            request.getRequestDispatcher("index.jsp").forward(request, response);
-        } catch (IOException e) {
-            e.printStackTrace();
-            request.getSession().setAttribute("ERROR_MSG",  e.getMessage());
-            request.getRequestDispatcher("error.jsp");
+        }else {
+            request.getRequestDispatcher("index.jsp").forward(request, response);            
         }
-
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

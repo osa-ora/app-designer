@@ -32,9 +32,44 @@ public class QuarkusGenerator implements IGenerator{
     }
 
     @Override
-    public void generateArtifact(String groupId, String version, String build, String caption, Dependency[] dependencies) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public String generateArtifact(String groupId, String version, String build, String caption, Dependency[] dependencies) {
+        String command="mvn io.quarkus:quarkus-maven-plugin:1.5.0.Final:create"
+                + " -DprojectGroupId="+groupId
+                + " -DprojectArtifactId="+caption
+                + " -DprojectVersion="+version
+                + " -DclassName=\""+groupId+"."+caption+"\"\n";
+        command+="cd "+caption+"\n";
+        command+=addDependencies("./mvnw quarkus:add-extension -Dextensions=",dependencies);
+        command+="cd ..\n";
+        return command;
     }
-
+    private String addDependencies(String command, Dependency[] dependencies){
+        String allDep="";
+        //generic dependencies
+        allDep+=command+"\"SmallRye-Health\"\n";
+        allDep+=command+"\"JSON-B\"\n";
+        //user specific depdenencies
+        for(Dependency dep:dependencies){
+            dep.setType(dep.getType().toUpperCase());
+            switch(dep.getType()){
+                case "MYSQL":
+                    allDep+=command+"\"jdbc-mysql\"\n";
+                    break;
+                case "POSTGRES":
+                    allDep+=command+"\"jdbc-postgres\"\n";
+                    break;
+                case "MONGODB":
+                    allDep+=command+"\"mongodb-client\"\n";
+                    break;
+                case "KAFKA":
+                    allDep+=command+"\"kafka-streams\"\n";
+                    allDep+=command+"\"kafka-client\"\n";
+                    break;
+                default:
+                    break;
+            }
+        }
+        return allDep;
+    }
     
 }
