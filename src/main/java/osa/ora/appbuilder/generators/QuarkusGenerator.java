@@ -55,7 +55,7 @@ public class QuarkusGenerator implements IGenerator{
                 case "MYSQL":
                     allDep+=command+"\"jdbc-mysql\"\n";
                     break;
-                case "POSTGRES":
+                case "POSTGRESQL":
                     allDep+=command+"\"jdbc-postgres\"\n";
                     break;
                 case "MONGODB":
