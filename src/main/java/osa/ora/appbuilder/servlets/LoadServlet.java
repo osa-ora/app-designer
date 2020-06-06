@@ -23,7 +23,8 @@ import javax.servlet.http.Part;
 @WebServlet(name = "LoadServlet", urlPatterns = {"/LoadServlet"})
 @MultipartConfig
 public class LoadServlet extends HttpServlet {
-
+    private static final String ACTION_LOAD_FILE="1";
+    private static final String ACTION_BACK_TO_DESIGNER="2";
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -36,13 +37,10 @@ public class LoadServlet extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String type=request.getParameter("type");
-        if(type==null) type="1";
-        if(type=="1"){
-            // Create a new file upload handler
+        if(type==null) type=ACTION_LOAD_FILE;
+        if(ACTION_LOAD_FILE.equals(type)){
             try {
-                //String description = request.getParameter("description"); // Retrieves <input type="text" name="description">
                 Part filePart = request.getPart("file"); // Retrieves <input type="file" name="file">
-                //String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
                 String fileName = filePart.getHeader("content-disposition");
                 if(!fileName.isEmpty()){
                     fileName=fileName.substring(fileName.indexOf("filename=\"")+10,fileName.lastIndexOf("\""));
@@ -50,7 +48,6 @@ public class LoadServlet extends HttpServlet {
                 System.out.println("FileName="+fileName);
                 InputStream inputStream = filePart.getInputStream();            
                 final ByteArrayOutputStream out = new ByteArrayOutputStream();
-                //final ServletInputStream inputStream = request.getInputStream();
                 byte[] buf = new byte[1024];
                 int read;
                 while ((read = inputStream.read(buf)) != -1) {
@@ -66,7 +63,7 @@ public class LoadServlet extends HttpServlet {
                 request.getSession().setAttribute("ERROR_MSG",  e.getMessage());
                 request.getRequestDispatcher("error.jsp");
             }
-        }else {
+        }else if(ACTION_BACK_TO_DESIGNER.equals(type)) {
             request.getRequestDispatcher("index.jsp").forward(request, response);            
         }
     }

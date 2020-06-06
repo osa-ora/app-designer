@@ -29,6 +29,10 @@ import osa.ora.appbuilder.config.IGenerator;
 public class SaveServlet extends HttpServlet {
     //generation configuration
     private static GenConfig genConfig=GenConfig.getInstance();
+    private static final String ACTION_SAVE_FILE="1";
+    private static final String ACTION_GENERATE="2";
+    private static final String ACTION_EXPORT_SH="3";
+    private static final String ACTION_EXPORT_BAT="4";
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -55,7 +59,8 @@ public class SaveServlet extends HttpServlet {
         String data=request.getParameter("data");
         //conver path into relative path images/image_name.png
         if(data!=null) data=data.replaceAll(path, "");
-        if("1".equals(type)){
+        else data="";
+        if(ACTION_SAVE_FILE.equals(type)){
             response.setHeader("Content-disposition", "attachment; filename=app.json");
             response.setContentType("application/json");
             OutputStream o = response.getOutputStream();
@@ -64,7 +69,7 @@ public class SaveServlet extends HttpServlet {
             o.close();
         //generate the code ..   
         //TODO: temporary logic to generate the required script to build the application
-        }else if("2".equals(type)){
+        }else if(ACTION_GENERATE.equals(type)){
             OutputStream output = response.getOutputStream();
             //convert to Java object
             Application app=new Gson().fromJson(data, Application.class);
@@ -90,11 +95,10 @@ public class SaveServlet extends HttpServlet {
                 }
             }
             if(generatorFound){
-                request.getSession().setAttribute("SCRIPT",  script);
-                
+                request.getSession().setAttribute("SCRIPT",  script);                
+
                 output.write("Back to designer click <b><a href='LoadServlet?type=2'>Here</a><b>.<br>".getBytes());
-                output.write("Download script file .sh <b><a href='SaveServlet?type=3'>Here</a><b>.<br>".getBytes());
-                output.write("<red><b>Note:</b> For Windows operating system, you need to omit the ./ before the commands.</red><br>".getBytes());
+                output.write("Download script file .sh <b><a href='SaveServlet?type=3'>Here</a><b> and .bat file from <b><a href='SaveServlet?type=4'>Here</a><b><br>".getBytes());
                 output.write("<red><b>Note:</b> The Generated Code is for the current supported generator only.</red><br>".getBytes());
             }else{
                 output.write("<red><b>Sorry:</b> No current generator available for your project components.</red><br>".getBytes());
@@ -104,15 +108,29 @@ public class SaveServlet extends HttpServlet {
             //or just return the script to be executed
             output.write("<hr><br>".getBytes());
             output.flush();
-        }else if("3".equals(type)){
+        //download .sh file
+        }else if(ACTION_EXPORT_SH.equals(type)){
             String scriptData=(String)request.getSession().getAttribute("SCRIPT");
             response.setHeader("Content-disposition", "attachment; filename=script.sh");
             //keep the content as json for now as it won't actually matter
             response.setContentType("application/json");
-            OutputStream o = response.getOutputStream();
-            o.write(scriptData.getBytes());
-            o.flush();
-            o.close();
+            try (OutputStream o = response.getOutputStream()) {
+                o.write(scriptData.getBytes());
+                o.flush();
+                //download .bat file
+            }
+        }else if(ACTION_EXPORT_BAT.equals(type)){
+            String scriptData=(String)request.getSession().getAttribute("SCRIPT");
+            //adjust the script for Windows OS
+            scriptData=scriptData.replaceAll("mvn io", "call mvn io");
+            scriptData=scriptData.replaceAll("./mvnw", "call mvnw");
+            response.setHeader("Content-disposition", "attachment; filename=script.bat");
+            //keep the content as json for now as it won't actually matter
+            response.setContentType("application/json");
+            try (OutputStream o = response.getOutputStream()) {
+                o.write(scriptData.getBytes());
+                o.flush();
+            }
         }
     }
 
