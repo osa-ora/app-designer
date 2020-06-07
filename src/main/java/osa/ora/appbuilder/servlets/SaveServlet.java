@@ -97,7 +97,7 @@ public class SaveServlet extends HttpServlet {
             if(generatorFound){
                 request.getSession().setAttribute("SCRIPT",  script);                
 
-                output.write("Back to designer click <b><a href='LoadServlet?type=2'>Here</a><b>.<br>".getBytes());
+                output.write("Back to designer click <b><a href='LoadServlet?type2=2'>Here</a><b>.<br>".getBytes());
                 output.write("Download script file .sh <b><a href='SaveServlet?type=3'>Here</a><b> and .bat file from <b><a href='SaveServlet?type=4'>Here</a><b><br>".getBytes());
                 output.write("<red><b>Note:</b> The Generated Code is for the current supported generator only.</red><br>".getBytes());
             }else{
