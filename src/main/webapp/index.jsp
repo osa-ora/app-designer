@@ -18,7 +18,7 @@
     var canvas_width=1000;
     var canvas_height=500;
     var currentFormatVersion=1.0;
-
+    //function to start/end the connection between 2 components
     function startLine(source){
 	//display the selected item details
 	document.getElementById("prop").innerHTML='<img src="'+source.src+'" width="50" height="50"><br>'+
@@ -41,6 +41,7 @@
             }
 	}
     }
+    //function to draw a connection between 2 components
     function drawLine(obj1, obj2){
 	//check if connection already in place
 	if(document.getElementById(obj1+'_'+obj2)) {
@@ -83,6 +84,7 @@
     function drag(ev) {
         ev.dataTransfer.setData("text", ev.target.id);
     }
+    //function to get text width on the browser
     function getTextWidth(text, font) {
         // re-use canvas object for better performance
         var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
@@ -91,6 +93,7 @@
         var metrics = context.measureText(text);
         return metrics.width;
     }
+    //function to drop components
     function drop(ev) {
         ev.preventDefault();
         var data = ev.dataTransfer.getData("text");
@@ -128,12 +131,14 @@
 	}
     }
     }
+    //this function creata a component
     function createComponent(imgSrc,alt,id,x,y,key,xx,yy,caption,action){
 	var content='<img src="'+imgSrc+'" alt="'+alt+'" action="'+action+'" draggable="true" ondragstart="drag(event)" id="'+id+'" onclick="startLine('+id+');" width="'+icon_width+'" height="'+icon_height+'" style="position:absolute; left:'+
 		x+'; top:'+y+';" class="component">'+
 		'<label id="'+key+'" style="position:absolute; left:'+xx+'px; top:'+yy+'px; font-size:8pt;font-family:arial;font-weight:bold;" onclick="updateCaption('+key+','+parseInt(x)+')">'+caption+'</label>';
 	return content;
     }
+    //this function update the component caption
     function updateCaption(key,x){
         //alert(key);
         var caption = prompt("Please enter name", key.textContent);
@@ -144,6 +149,7 @@
         key.style.left=xx+'px';
         //key.setAttribute("style","position:absolute; left:'+xx+'px; top:'+yy+'px; font-size:8pt;font-family:arial")
     }
+    //function to delete the components by dropping it outside the pannel
     function drop_back(ev) {
         ev.preventDefault();
         var data = ev.dataTransfer.getData("text");
@@ -170,9 +176,12 @@
         if(yes) document.getElementById("pannel").className ="pannel1";
         else  document.getElementById("pannel").className ="pannel2";
     }
+    //save function that generate JSON
     function save(){
 	document.getElementById("save").value=generateJSON();
     }
+    //function to generate the HTML content of the pannel
+    //not really required, we can just throw the innerHTML of the pannel
     function generateHTML(){
 	var content='';
 	var allImages = document.getElementsByTagName("img");
@@ -188,6 +197,7 @@
 	}
 	return content;
     }
+    //function to generate the JSON representation of the pannel
     function generateJSON(){
 	var content='{\n"format":"'+currentFormatVersion+'",\n';
         content+='"groupId":"'+document.getElementById("groupId").value+'",\n';
@@ -245,13 +255,16 @@
 	content+='}\n';
 	return content;
     }
+    //function to laod a content from the save textarea
     function loadContent(){
 	loadJSON(document.getElementById("save").value);
     }
+    //function to load a content into the pannel (JSON format expected)
     function loadJSON(mydata){
 	try {
             var mydata=JSON.parse(mydata);
         } catch (e) {
+            //if not JSON alert error
             alert("Invalid Input, reason: "+e);
             return;
 	}
@@ -270,35 +283,72 @@
 	}
 	document.getElementById("pannel").innerHTML=content;
 	create();
-	alert("Successfully load "+mydata.components.length+" component(s) and "+mydata.connections.length+" connection(s)");
+	showMessage("Successfully load "+mydata.components.length+" component(s) and "+mydata.connections.length+" connection(s)");
     }
+    //load a content from the save text area
     function load(){
         document.getElementById("pannel").innerHTML=document.getElementById("save").value;
         create();
     }
+    //swich connectivity between components on/off
     function connect(yes){
         if(yes) connectFlag=true;
         else connectFlag=false;
         startDraw=false;
     }
+    //save function
     function save(){
+        if(!atLEastOneComponent()){
+            showMessage('You must have at least one component!');
+            return;
+        }
         document.getElementById("type").value="1";
         document.getElementById("data").value=generateJSON();
         document.forms[0].submit();
     }
+    //generate function
     function next(){
+        if(!atLEastOneComponent()){
+            showMessage('You must have at least one component!');
+            return;
+        }
         document.getElementById("type").value="2";
         document.getElementById("data").value=generateJSON();
         document.forms[0].submit();
     }
+    //view the content in save area
     function viewContent(){
         document.getElementById("save").value=generateHTML();
+    }
+    //function to reset the drawing pannel
+    function reset(){
+        document.getElementById("save").value='';
+        document.getElementById("data").value='';
+        document.getElementById("pannel").innerHTML='';
+        counter=10;
+    }
+    function atLEastOneComponent(){
+        var allImages = document.getElementsByTagName("img");
+	for (var i=0; i < allImages.length; i++) {
+            if(allImages[i].id.indexOf("_")!=-1) {
+                return true;
+            }
+        }
+        return false;
+    }
+    //function to show text message in the snackbar div (as a toast)
+    function showMessage(message) {
+        document.getElementById("snackbar").innerHTML=message;
+        var x = document.getElementById("snackbar");
+        x.className = "show";
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     }
     </script>
     </head>
     <body>
         <center>
             <h2>Build Your Cloud Native Application <div id="fileName">[No-Name]</div></h2>
+            <div id="snackbar">Hello</div>
         </center>
         <table width="800pt;">
         <tr><td style="vertical-align:top;" height="10%">
@@ -402,11 +452,13 @@
         </td>
         </tr>
         <tr><td></td><td colspan="2">
+            <button class="button button2" onclick="reset();">Reset Board</button>
             <button class="button button2" onclick="viewContent();">View Content</button>
             <button class="button button2" onclick="save();">Save Content</button>
             <button class="button button2" style="vertical-align:middle" onclick="next()"><span>Generate </span></button>            
             <form action="LoadServlet" method="post" enctype="multipart/form-data">
                 <div><input id="file" name="file" type="file"> 
+                    <input type="text" hidden="true" id="type2" name="type2" value="1">
                 <button class="button button2" type="submit">Load Saved</button>
                 </div>
             </form>
