@@ -35,9 +35,9 @@ public class LoadServlet extends HttpServlet {
      * @throws IOException if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        String type=request.getParameter("type");
-        if(type==null) type=ACTION_LOAD_FILE;
+            throws ServletException, IOException {      
+        String type=request.getParameter("type2");
+        if(type==null) type=ACTION_BACK_TO_DESIGNER;
         if(ACTION_LOAD_FILE.equals(type)){
             try {
                 Part filePart = request.getPart("file"); // Retrieves <input type="file" name="file">
