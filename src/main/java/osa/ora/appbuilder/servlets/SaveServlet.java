@@ -111,6 +111,7 @@ public class SaveServlet extends HttpServlet {
         //download .sh file
         }else if(ACTION_EXPORT_SH.equals(type)){
             String scriptData=(String)request.getSession().getAttribute("SCRIPT");
+            scriptData="#!/bin/sh\n"+scriptData;
             response.setHeader("Content-disposition", "attachment; filename=script.sh");
             //keep the content as json for now as it won't actually matter
             response.setContentType("application/json");
