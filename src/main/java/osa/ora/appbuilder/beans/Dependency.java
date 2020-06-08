@@ -11,6 +11,7 @@ package osa.ora.appbuilder.beans;
  */
 public class Dependency {
     private String type;
+    private String name;
     private String text;
 
     /**
@@ -39,6 +40,20 @@ public class Dependency {
      */
     public void setText(String text) {
         this.text = text;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
     }
     
 }

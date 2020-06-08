@@ -18,6 +18,7 @@ public class Component {
     private String y;
     private String caption;
     private Dependency[] dependencies;
+    private Param[] params;
 
     /**
      * @return the id
@@ -129,6 +130,20 @@ public class Component {
      */
     public void setAction(String action) {
         this.action = action;
+    }
+
+    /**
+     * @return the params
+     */
+    public Param[] getParams() {
+        return params;
+    }
+
+    /**
+     * @param params the params to set
+     */
+    public void setParams(Param[] params) {
+        this.params = params;
     }
     
     
