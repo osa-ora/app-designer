@@ -14,17 +14,17 @@ import osa.ora.appbuilder.config.IGenerator;
  *
  * @author Osama Oransa
  */
-public class QuarkusGenerator implements IGenerator{
+public class JavaGenerator implements IGenerator{
     private Map<String,String> mapList=null;
 
     @Override
     public String getName() {
-        return "Quarkus";
+        return "Java";
     }
 
     @Override
     public String getIcon() {
-        return "quarkus.png";
+        return "java.png";
     }
 
     @Override
@@ -38,7 +38,6 @@ public class QuarkusGenerator implements IGenerator{
             mapList=new HashMap<String,String>();
             mapList.put(VERSION, null);
             mapList.put(EXTERNAL, "FALSE");
-            mapList.put(NATIVE, "TRUE");
         }
         return mapList;
     }
@@ -46,16 +45,9 @@ public class QuarkusGenerator implements IGenerator{
     @Override 
     public String generateDeployment(String caption, Map<String,String> params,Dependency[] dependencies) {
         String command="cd "+caption+"\n";
-        //check wether native or java is required
-        if(params.get(NATIVE)==null || Boolean.parseBoolean(params.get(NATIVE))){
-            //adjust version to the latest version if native
-            params.put(VERSION, "ubi-quarkus-native-s2i:19.3.1-java11");
-            command+="oc new-app quay.io/quarkus/"+params.get(VERSION)+" --name="+caption+" . \n";
-        }else{
-            //adjust to the latest version of jdk
-            params.put("Version", "redhat-openjdk-18/openjdk18-openshift");
-            command+="oc new-app registry.access.redhat.com/"+params.get(VERSION)+" --name="+caption+" . \n";
-        }
+        //adjust to the latest version of jdk
+        params.put(VERSION, "redhat-openjdk-18/openjdk18-openshift");
+        command+="oc new-app registry.access.redhat.com/"+params.get(VERSION)+" --name="+caption+" . \n";
         //add all service bindings as secrets or config maps
         command+=addBindings("oc set env dc/"+caption+" --from ",dependencies);
         //expose if external service is required
@@ -70,48 +62,11 @@ public class QuarkusGenerator implements IGenerator{
     @Override
     public String generateArtifact(String groupId, String version, String build, String caption, Dependency[] dependencies) {
         //basic maven command to generate the project
-        String command="mvn io.quarkus:quarkus-maven-plugin:1.5.0.Final:create"
-                + " -DprojectGroupId="+groupId
-                + " -DprojectArtifactId="+caption
-                + " -DprojectVersion="+version
-                + " -DclassName=\""+groupId+"."+caption+"\"\n";
-        command+="cd "+caption+"\n";
-        //execute add all extentions according to service dependencies
-        command+=addDependencies("./mvnw quarkus:add-extension -Dextensions=",dependencies);
-        command+="# S2I: Ad.s2i folder content for non-native build ..\n";
-        command+="cd ..\n";
+        String command="mvn archetype:generate "
+                + " -DgroupId="+groupId
+                + " -DartifactId="+caption
+                + " -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false\n";
         return command;
-    }
-    private String addDependencies(String command, Dependency[] dependencies){
-        String allDep="";
-        //generic dependencies
-        allDep+=command+"\"SmallRye-Health\"\n";
-        allDep+=command+"\"JSON-B\"\n";
-        //user specific depdenencies
-        for(Dependency dep:dependencies){
-            dep.setType(dep.getType().toUpperCase());
-            switch(dep.getType()){
-                case "MYSQL":
-                    allDep+=command+"\"jdbc-mysql\"\n";
-                    break;
-                case "POSTGRESQL":
-                    allDep+=command+"\"jdbc-postgres\"\n";
-                    break;
-                case "MONGODB":
-                    allDep+=command+"\"mongodb-client\"\n";
-                    break;
-                case "ACTIVEMQ":
-                    allDep+=command+"\"activemq\"\n";
-                    break;
-                case "KAFKA":
-                    allDep+=command+"\"kafka-streams\"\n";
-                    allDep+=command+"\"kafka-client\"\n";
-                    break;
-                default:
-                    break;
-            }
-        }
-        return allDep;
     }
     private String addBindings(String command, Dependency[] dependencies){
         String allDep="";

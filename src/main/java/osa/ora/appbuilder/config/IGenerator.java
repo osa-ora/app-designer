@@ -5,6 +5,7 @@
  */
 package osa.ora.appbuilder.config;
 
+import java.util.Map;
 import osa.ora.appbuilder.beans.Dependency;
 
 /**
@@ -12,9 +13,36 @@ import osa.ora.appbuilder.beans.Dependency;
  * @author Osama Oransa
  */
 public interface IGenerator {
+    //constant for parameters used in different generators
+    public static String EXTERNAL="External";
+    public static String VERSION="Version";
+    public static String NATIVE="Native";
+    public static String DB_NAME="DB Name";
+    public static String DB_ROOT_PASSWORD="DB Root Password";
+    public static String DB_USER="DB User";
+    public static String DB_USER_PASSWORD="DB User Password";
+    
+    //generator methods
     public String getName();
     public String getIcon();
     public String getDefaultProducerAction();
+    public Map<String,String> getParamList();
+    /**
+     * This method generate the actual artifact i.e. project/code
+     * @param groupId
+     * @param version
+     * @param build
+     * @param caption
+     * @param dependencies
+     * @return String of the generation commands
+     */
     public String generateArtifact(String groupId, String version, String build, String caption, Dependency[] dependencies);
-    public String generateDeployment();
+    /**
+     * This method generate the OpenShift deployment commands i.e. oc command list
+     * @param caption
+     * @param params
+     * @param dependencies
+     * @return String of the deployment commands
+     */
+    public String generateDeployment(String caption, Map<String,String> params,Dependency[] dependencies);
 }
