@@ -11,19 +11,25 @@
     <script>
     var startDraw=false;
     var start='';
-    var connectFlag=true;
+    var connectFlag=false;
     var counter=10;
     var icon_width=50;
     var icon_height=50;
     var canvas_width=1000;
-    var canvas_height=500;
+    var canvas_height=600;
     var currentFormatVersion=1.0;
+    var max_params=10;
     //function to start/end the connection between 2 components
     function startLine(source){
 	//display the selected item details
-	document.getElementById("prop").innerHTML='<img src="'+source.src+'" width="50" height="50"><br>'+
-	'<label>'+document.getElementById(source.id+'_l').innerHTML+'<br>['+source.alt+']</label>';
-	//check if connection is switched on (between elements)
+	var object_props='<img src="'+source.src+'" width="50" height="50"><br>'+
+	'<label>'+document.getElementById(source.id+'_l').innerHTML+'<br></label>'+
+        ' <div>Service Name</div><input id="srv_name" value="'+document.getElementById(source.id+'_l').innerHTML+'">';
+	object_props+=generateDynamicParametersFields(source);
+        object_props+='<img src="images/save.png" width="50" height="50" onclick="updateParams('+source.id+');">';
+        object_props+=' <img src="images/trash.png" width="50" height="50" onclick="deleteComponentObj('+source.id+');">';
+        document.getElementById("prop").innerHTML=object_props;
+        //check if connection is switched on (between elements)
 	if(!connectFlag) return;
 	//check wether to draw or not?
 	source=source.id;
@@ -106,48 +112,91 @@
         var my_element = document.getElementById(data);
         if(my_element==null) return;
         if(ev.target.id=='pannel'){
-        if(my_element.id.indexOf("_")==-1) {
-            var caption = prompt("Please enter name", "Service");
-            counter++;
-            //make sure no other existing element has the same id
-            while(document.getElementById('drag_'+counter)!=null){
+            if(my_element.id.indexOf("_")==-1) {
+                var caption = prompt("Please enter name", "Service");
                 counter++;
+                //make sure no other existing element has the same id
+                while(document.getElementById('drag_'+counter)!=null){
+                    counter++;
+                }
+                yy=y+icon_height+2;
+                xx=x-((getTextWidth(caption)-icon_width)/2);
+                key='drag_'+counter+'_l';
+                var dynamicParams=generateDynamicParameters(my_element);
+                document.getElementById("pannel").innerHTML=document.getElementById("pannel").innerHTML+
+                        createComponent(my_element.src,my_element.alt,'drag_'+counter,x+'px',y+'px',key,xx,yy,caption,my_element.getAttribute("action"),dynamicParams);
+                counter++;
+            }else{
+                var caption=document.getElementById(my_element.id+'_l').textContent;
+                document.getElementById(data).remove();
+                document.getElementById(data+'_l').remove();		
+                yy=y+icon_height+2;
+                xx=x-((getTextWidth(caption)-icon_width)/2);
+                key=my_element.id+'_l';
+                var dynamicParams=generateDynamicParameters(my_element);
+                document.getElementById("pannel").innerHTML=createComponent(my_element.src,my_element.alt,my_element.id,x+'px',y+'px',key,xx,yy,caption,my_element.getAttribute("action"),dynamicParams)+
+                        document.getElementById("pannel").innerHTML; 
             }
-            yy=y+icon_height+2;
-            xx=x-((getTextWidth(caption)-icon_width)/2);
-            key='drag_'+counter+'_l';
-            document.getElementById("pannel").innerHTML=document.getElementById("pannel").innerHTML+
-                    createComponent(my_element.src,my_element.alt,'drag_'+counter,x+'px',y+'px',key,xx,yy,caption,my_element.getAttribute("action"));
-            counter++;
-        }else{
-            var caption=document.getElementById(my_element.id+'_l').textContent;
-            document.getElementById(data).remove();
-            document.getElementById(data+'_l').remove();		
-            yy=y+icon_height+2;
-            xx=x-((getTextWidth(caption)-icon_width)/2);
-            key=my_element.id+'_l';
-            document.getElementById("pannel").innerHTML=createComponent(my_element.src,my_element.alt,my_element.id,x+'px',y+'px',key,xx,yy,caption,my_element.getAttribute("action"))+
-                    document.getElementById("pannel").innerHTML; 
-	}
+        }
     }
+    //this method generate the custom parameters for each component
+    function generateDynamicParameters(element){
+        var dynamic_parameters="";
+        var itemNo=1;
+        while(element.getAttribute("param"+itemNo)!=null){
+            dynamic_parameters+=' param'+itemNo+'="'+element.getAttribute("param"+itemNo)+'"'+
+                    ' param'+itemNo+'_value="'+element.getAttribute('param'+itemNo+'_value')+'"';
+            itemNo++;
+            //max 10 parameters
+            if(itemNo>=max_params) break;
+        }
+        return dynamic_parameters;
+    }
+    //this function displays editable fields for a component
+    function generateDynamicParametersFields(element){
+        var dynamic_parameters="";
+        var itemNo=1;
+        while(element.getAttribute("param"+itemNo)!=null){
+            dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'</div>'+
+                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'">';
+            itemNo++;
+            //max 10 parameters
+            if(itemNo>=max_params) break;
+        }
+        return dynamic_parameters;
+    }
+    //this function updates the custome paramters of a component plus its caption
+    //from the component properties
+    function updateParams(element){
+        var itemNo=1;
+        while(element.getAttribute("param"+itemNo)!=null){
+            element.setAttribute("param"+itemNo+"_value",document.getElementById("param"+itemNo).value);
+            itemNo++;
+            //max 10 parameters
+            if(itemNo>=max_params) break;
+        }
+        newCaption(document.getElementById("srv_name").value,document.getElementById(element.id+'_l'),parseInt(document.getElementById(element.id).style.left));
     }
     //this function creata a component
-    function createComponent(imgSrc,alt,id,x,y,key,xx,yy,caption,action){
+    function createComponent(imgSrc,alt,id,x,y,key,xx,yy,caption,action,dynamicParams){
 	var content='<img src="'+imgSrc+'" alt="'+alt+'" action="'+action+'" draggable="true" ondragstart="drag(event)" id="'+id+'" onclick="startLine('+id+');" width="'+icon_width+'" height="'+icon_height+'" style="position:absolute; left:'+
-		x+'; top:'+y+';" class="component">'+
+		x+'; top:'+y+';" class="component" '+dynamicParams+' >'+
 		'<label id="'+key+'" style="position:absolute; left:'+xx+'px; top:'+yy+'px; font-size:8pt;font-family:arial;font-weight:bold;" onclick="updateCaption('+key+','+parseInt(x)+')">'+caption+'</label>';
 	return content;
+    }
+    //update the component caption
+    function newCaption(caption,element,x){
+        if(caption==null || caption=='') return;
+        element.textContent=caption;
+        //calculate and adjust the new caption location
+        xx=x-((getTextWidth(caption)-icon_width)/2);
+        element.style.left=xx+'px';
     }
     //this function update the component caption
     function updateCaption(key,x){
         //alert(key);
         var caption = prompt("Please enter name", key.textContent);
-        if(caption==null) return;
-        key.textContent=caption;
-        //yy=y+icon_height+2;
-        xx=x-((getTextWidth(caption)-icon_width)/2);
-        key.style.left=xx+'px';
-        //key.setAttribute("style","position:absolute; left:'+xx+'px; top:'+yy+'px; font-size:8pt;font-family:arial")
+        newCaption(caption,key,x);
     }
     //function to delete the components by dropping it outside the pannel
     function drop_back(ev) {
@@ -155,13 +204,30 @@
         var data = ev.dataTransfer.getData("text");
         var my_element = document.getElementById(data);
         if(my_element.id.indexOf("_")!=-1) {
-            if(confirm("Delete Component?")){
-                //component must not connected using connection
-                if(validateConnections(data)==true) {alert('Delete its connection(s) first!');return;}
-                document.getElementById(data).remove();
-                document.getElementById(data+'_l').remove();	
-            }	
+            deleteComponent(data);
       }
+    }
+    //this methid deletes component using its id
+    function deleteComponent(data){
+        if(confirm("Delete Component?")){
+            //component must not connected using connection
+            if(validateConnections(data)==true) {alert('Delete its connection(s) first!');return;}
+            document.getElementById(data).remove();
+            document.getElementById(data+'_l').remove();
+            document.getElementById("prop").innerHTML='<br><br><br><label>No Component Selected</label>';
+            startDraw=false;
+        }
+    }
+    //this component deletes component using the object itself
+    function deleteComponentObj(data){
+        if(confirm("Delete Component?")){
+            //component must not connected using connection
+            if(validateConnections(data.id)==true) {alert('Delete its connection(s) first!');return;}
+            data.remove();
+            document.getElementById(data.id+'_l').remove();
+            document.getElementById("prop").innerHTML='<br><br><br><label>No Component Selected</label>';
+            startDraw=false;
+        }
     }
     //validate if component already connected to a connection
     function validateConnections(data){
@@ -219,6 +285,17 @@
                     content+='"x":"'+allImages[i].style.left+'",\n';
                     content+='"y":"'+allImages[i].style.top+'",\n';
                     content+='"caption":"'+document.getElementById(allImages[i].id+"_l").innerHTML+'",\n';
+                    content+='"params":[\n';
+                    var itemNo=1;
+                    while(allImages[i].getAttribute("param"+itemNo)!=null){
+                        if(itemNo!=1) content+=',\n';
+                        content+='{"key":"'+allImages[i].getAttribute("param"+itemNo)+'",\n';
+                        content+='"value":"'+allImages[i].getAttribute("param"+itemNo+"_value")+'"}\n';
+                        itemNo++;
+                        //max 10 parameters
+                        if(itemNo>=max_params) break;
+                    }                    
+                    content+='],\n';
                     content+='"dependencies":[\n';                    
                     var depdenceyFound=false;
                     for (var n=0; n < allConnections.length; n++) {
@@ -228,6 +305,7 @@
                             depdenceyFound=true;
                             var key=allConnections[n].getAttribute('to').substring(1);                            
                             content+='{"type":"'+document.getElementById(key).alt+'",\n';
+                            content+='"name":"'+document.getElementById(key+"_l").innerHTML+'",\n';
                             content+='"text":"'+allConnections[n].getAttribute('text')+'"}\n';
                         }
                     }
@@ -276,7 +354,12 @@
             yy=parseInt(mydata.components[i].y)+icon_height+2;
             xx=parseInt(mydata.components[i].x)-((getTextWidth(mydata.components[i].caption)-icon_width)/2);
             key=mydata.components[i].id+'_l';
-            content+=createComponent(mydata.components[i].src,mydata.components[i].type,mydata.components[i].id,mydata.components[i].x,mydata.components[i].y,key,xx,yy,mydata.components[i].caption,mydata.components[i].action);
+            var dynamicParams='';
+            for(var s=1;s<=mydata.components[i].params.length;s++){
+                dynamicParams+=' param'+s+'="'+mydata.components[i].params[s-1].key+'"'+
+                    ' param'+s+'_value="'+mydata.components[i].params[s-1].value+'"';
+            }
+            content+=createComponent(mydata.components[i].src,mydata.components[i].type,mydata.components[i].id,mydata.components[i].x,mydata.components[i].y,key,xx,yy,mydata.components[i].caption,mydata.components[i].action,dynamicParams);
 	}
 	for (var i=0; i < mydata.connections.length; i++) {
             content+=createConnection(mydata.connections[i].id,mydata.connections[i].from,mydata.connections[i].to,"red",mydata.connections[i].text,' fromX='+mydata.connections[i].fromX+' toX='+mydata.connections[i].toX,' fromY='+mydata.connections[i].fromY+' toY='+mydata.connections[i].toY);
@@ -355,39 +438,68 @@
         <div class="box" width="100%" id="drag1_div" ondrop="drop_back(event)" ondragover="allowDrop(event)" style="vertical-align:top;">
             <h2>Components</h2>
                 <table><tr><td style="border:1px solid black;">
-                <img src="images/quarkus.png" alt="Quarkus" title="Quarkus" action="REST" draggable="true" ondragstart="drag(event)" id="drag1" width="50" height="50">
+                <img src="images/quarkus.png" alt="Quarkus" title="Quarkus" action="REST" draggable="true" ondragstart="drag(event)" id="drag1" 
+                     param1="Native" param2="External"
+                     param1_value="TRUE" param2_value="FALSE" 
+                     width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/java_logo.png" alt="Java" title="Java" action="REST" draggable="true" ondragstart="drag(event)" id="drag2" width="50" height="50">
+                <img src="images/java_logo.png" alt="Java" title="Java" action="REST" draggable="true" ondragstart="drag(event)" id="drag2" 
+                     param1="External"
+                     param1_value="FALSE"
+                     width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/spring-boot.png" alt="SpringBoot" action="REST" title="SpringBoot" draggable="true" ondragstart="drag(event)" id="drag3" width="50" height="50">
+                <img src="images/spring-boot.png" alt="SpringBoot" action="REST" title="SpringBoot" draggable="true" ondragstart="drag(event)" id="drag3" 
+                     param1="External"
+                     param1_value="FALSE"
+                     width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/nodejs.png" alt="NodeJS" title="NodeJS" action="REST" draggable="true" ondragstart="drag(event)" id="drag4" width="50" height="50">
+                <img src="images/nodejs.png" alt="NodeJS" title="NodeJS" action="REST" draggable="true" ondragstart="drag(event)" id="drag4" 
+                     param1="External"
+                     param1_value="FALSE"
+                     width="50" height="50">
                 </td ></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/mysql.png" alt="MySQL" title="MySQL" action="Persist" draggable="true" ondragstart="drag(event)" id="drag5" width="50" height="50">
+                <img src="images/jboss.png" alt="JBoss" action="Web" title="JBoss" draggable="true" ondragstart="drag(event)" id="drag5" 
+                     param1="External"
+                     param1_value="FALSE"
+                     width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/postgresql.png" alt="PostgreSQL" action="Persist" title="PostgreSQL" draggable="true" ondragstart="drag(event)" id="drag6" width="50" height="50">
+                <img src="images/tomcat.png" alt="Tomcat" title="Tomcat" action="Web" draggable="true" ondragstart="drag(event)" id="drag6" 
+                     param1="External"
+                     param1_value="FALSE"
+                     width="50" height="50">
+                </td ></tr>
+                <tr><td style="border:1px solid black;">
+                <img src="images/mysql.png" alt="MySQL" title="MySQL" action="Persist" draggable="true" ondragstart="drag(event)" id="drag7" 
+                     param1="DB Name" param2="DB Root Password" param3="DB User" param4="DB User Password" param5="External"
+                     param1_value="DB_Name" param2_value="Root_Password" param3_value="DB_User" param4_value="DB_User_Password" param5_value="FALSE" 
+                     width="50" height="50">
+                </td><td style="border:1px solid black;">
+                <img src="images/postgresql.png" alt="PostgreSQL" action="Persist" title="PostgreSQL" draggable="true" ondragstart="drag(event)" id="drag8" 
+                     param1="DB Name" param2="DB Root Password" param3="DB User" param4="DB User Password" param5="External"
+                     param1_value="DB_Name" param2_value="Root_Password" param3_value="DB_User" param4_value="DB_User_Password" param5_value="FALSE" 
+                     width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/mongodb.png" alt="MongoDB" action="Persist" title="MongoDB" draggable="true" ondragstart="drag(event)" id="drag7" width="50" height="50">
+                <img src="images/mongodb.png" alt="MongoDB" action="Persist" title="MongoDB" draggable="true" ondragstart="drag(event)" id="drag9" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/activemq.png" alt="ActiveMQ" action="Pub/Sub" title="ActiveMQ" draggable="true" ondragstart="drag(event)" id="drag8" width="50" height="50">
+                <img src="images/activemq.png" alt="ActiveMQ" action="Pub/Sub" title="ActiveMQ" draggable="true" ondragstart="drag(event)" id="drag10" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/kafka.png" alt="Kafka" action="Pub/Sub" title="Kafka" draggable="true" ondragstart="drag(event)" id="drag9" width="50" height="50">
+                <img src="images/kafka.png" alt="Kafka" action="Pub/Sub" title="Kafka" draggable="true" ondragstart="drag(event)" id="drag11" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/redis.png" alt="Redis" action="Cache" title="Redis" draggable="true" ondragstart="drag(event)" id="drag10" width="50" height="50">
+                <img src="images/redis.png" alt="Redis" action="Cache" title="Redis" draggable="true" ondragstart="drag(event)" id="drag12" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/net_core.png" alt=".Net" action="REST" title=".NetCore" draggable="true" ondragstart="drag(event)" id="drag11" width="50" height="50">
+                <img src="images/net_core.png" alt=".Net" action="REST" title=".NetCore" draggable="true" ondragstart="drag(event)" id="drag13" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/vertx.png" alt="VertX" action="REST" title="VertX" draggable="true" ondragstart="drag(event)" id="drag12" width="50" height="50">
+                <img src="images/vertx.png" alt="VertX" action="REST" title="VertX" draggable="true" ondragstart="drag(event)" id="drag14" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/knative.png" alt="KNative" action="REST" title="KNative" draggable="true" ondragstart="drag(event)" id="drag13" width="50" height="50">
+                <img src="images/knative.png" alt="KNative" action="REST" title="KNative" draggable="true" ondragstart="drag(event)" id="drag15" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/3scale.png" alt="3Scale" action="REST" title="3Scale" draggable="true" ondragstart="drag(event)" id="drag14" width="50" height="50">
+                <img src="images/3scale.png" alt="3Scale" action="REST" title="3Scale" draggable="true" ondragstart="drag(event)" id="drag16" width="50" height="50">
                 </td></tr>
                 </table>
         </div>
@@ -408,7 +520,7 @@
             <h2>Controls</h2>
                 <p align="center">
                 <label class="switch"> 
-                  <input type="checkbox" onclick="connect(this.checked);" checked>
+                  <input type="checkbox" onclick="connect(this.checked);">
                   <span class="slider round"></span>
                 </label><label><br> Connect</label><br>
                 <label class="switch"> 
