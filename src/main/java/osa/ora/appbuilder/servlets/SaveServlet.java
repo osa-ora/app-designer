@@ -14,10 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import osa.ora.appbuilder.beans.Application;
 import osa.ora.appbuilder.beans.Component;
 import osa.ora.appbuilder.beans.Connection;
+import osa.ora.appbuilder.beans.Param;
 import osa.ora.appbuilder.config.GenConfig;
 import osa.ora.appbuilder.config.IGenerator;
 
@@ -78,22 +80,50 @@ public class SaveServlet extends HttpServlet {
             //request.getSession().setAttribute("NAME",  "");
             request.getSession().setAttribute("DATA",  data);
             //System.out.println("app:"+app.getGroupId());
-            output.write(("<h1>Application \""+app.getGroupId()+"\" Generation Script</h1><h2>No of Components:"+app.getComponents().length+"</h2><hr>").getBytes());
+            output.write(("<h1>Application \""+app.getGroupId()+"\" Script</h1><h2>No of Components:"+app.getComponents().length+"</h2><hr>").getBytes());
             //invoke available generator for each component type
             boolean generatorFound=false;
             String script="";
+            String deploymet="";
+            //TODO: need to order components per dependency count 
+            //so build the service where others depdend on it first
+            output.write("<center><h2>Generation Script</h2><hr width='30%'><br></center>".getBytes());
             for (Component comp : app.getComponents()) {
-                IGenerator gen=genConfig.getGeneratorForType(comp.getType());               
+                IGenerator gen=genConfig.getGeneratorForType(comp.getType().toUpperCase()); 
+                System.out.println("Get Generator for type:"+comp.getType());
+                //System.out.println("Parameters:"+comp.getParams().length);
+                //System.out.println("Generator="+genConfig.getGeneratorForType(comp.getType().toUpperCase()));
+                //make sure all service names are lower case
+                comp.setCaption(comp.getCaption().toLowerCase());
                 if(gen!=null){
                     generatorFound=true;
                     output.write(("<h2>Service:"+comp.getCaption()+"</h2>").getBytes());
+                    //invoke code generation
                     String commands=gen.generateArtifact(app.getGroupId(), app.getVersion(), app.getBuild(),
                             comp.getCaption(),comp.getDependencies());
+                    if(commands==null) {
+                        commands="";
+                        output.write("No Generation Script<br>".getBytes());
+                    }                    
+                    //Dynamic populate the parameters
+                    HashMap<String, String> params=new HashMap<>();
+                    for (Param param : comp.getParams()) {
+                        params.put(param.getKey(), param.getValue());
+                    }
+                    //invoke deployment generation
+                    String newDeploymet=gen.generateDeployment(comp.getCaption(), params, comp.getDependencies());
+                    if(newDeploymet!=null) {
+                        deploymet+=newDeploymet;
+                    }
                     script+=commands;
                     output.write(commands.replaceAll("\n", "<br>").getBytes());
                     output.write("<hr>".getBytes());
                 }
             }
+            script+="DEPLOYMENT_NOTE\n"+deploymet;
+            output.write("<center><h2>Deploymet Script</h2><hr width='30%'><br></center>".getBytes());
+            output.write(deploymet.replaceAll("\n", "<br>").getBytes());
+            output.write("<hr>".getBytes());
             if(generatorFound){
                 request.getSession().setAttribute("SCRIPT",  script);                
 
@@ -112,25 +142,42 @@ public class SaveServlet extends HttpServlet {
         }else if(ACTION_EXPORT_SH.equals(type)){
             String scriptData=(String)request.getSession().getAttribute("SCRIPT");
             scriptData="#!/bin/sh\n"+scriptData;
+            //Add deployment note
+            scriptData=scriptData.replaceAll("DEPLOYMENT_NOTE", "echo \"You must commit the project to git repository before deploy the projects\"\n"
+                    + "read -p \"Press [Enter] key to resume...\"\n");
+            //TODO: need to be replaced with actual creation of environment file inside .s2i folder
+            //so it support java deployment as well
+            //scriptData=scriptData.replaceAll("S2I:","S2I:");
             response.setHeader("Content-disposition", "attachment; filename=script.sh");
             //keep the content as json for now as it won't actually matter
             response.setContentType("application/json");
             try (OutputStream o = response.getOutputStream()) {
                 o.write(scriptData.getBytes());
                 o.flush();
-                //download .bat file
+                //download .sh file
             }
         }else if(ACTION_EXPORT_BAT.equals(type)){
             String scriptData=(String)request.getSession().getAttribute("SCRIPT");
             //adjust the script for Windows OS
             scriptData=scriptData.replaceAll("mvn io", "call mvn io");
             scriptData=scriptData.replaceAll("./mvnw", "call mvnw");
+            scriptData=scriptData.replaceAll("oc ", "call oc ");
+            //make comments compatible with Windows            
+            scriptData=scriptData.replaceAll("# ","REM ");
+            //Add deployment note
+            scriptData=scriptData.replaceAll("DEPLOYMENT_NOTE", "echo You must commit the project to git repository before deploy the projects\n"
+                    + "pause\n");
+            scriptData="echo off\n"+scriptData;
+            //TODO: need to be replaced with actual creation of environment file inside .s2i folder
+            //so it support java deployment as well
+            //scriptData=scriptData.replaceAll("S2I:","S2I:");
             response.setHeader("Content-disposition", "attachment; filename=script.bat");
             //keep the content as json for now as it won't actually matter
             response.setContentType("application/json");
             try (OutputStream o = response.getOutputStream()) {
                 o.write(scriptData.getBytes());
                 o.flush();
+                //download .bat file
             }
         }
     }
