@@ -41,5 +41,8 @@ You can configure the stack as well (under development)
 
 ![configure](https://user-images.githubusercontent.com/18471537/83556165-b5b74200-a50f-11ea-976d-9400ebba93df.png)
 
+And you can also configure each component properties, for example MySQL DB configurations, etc.
 
+![sample](https://user-images.githubusercontent.com/18471537/84061321-03272980-a9be-11ea-9380-80aaf0c66d70.png)
+  
 The tool uses the basic features without much dependencies, only JS library: domarrow is used: https://github.com/schaumb/domarrow.js  
