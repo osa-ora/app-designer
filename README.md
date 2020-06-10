@@ -45,4 +45,35 @@ And you can also configure each component properties, for example MySQL DB confi
 
 ![sample](https://user-images.githubusercontent.com/18471537/84061321-03272980-a9be-11ea-9380-80aaf0c66d70.png)
   
-The tool uses the basic features without much dependencies, only JS library: domarrow is used: https://github.com/schaumb/domarrow.js  
+The tool uses the basic features without much dependencies, only JS library: domarrow is used to connect components in the drawing palette: https://github.com/schaumb/domarrow.js  
+
+# Overview of the Generator Framework  
+Every Component in the palette has to implement IGenerator interface which then provide the following methods:
+
+```
+public String getName();
+public String getIcon();
+public String getDefaultProducerAction();
+/**
+ * This method return the list of parameters that is required for this component.
+ */
+public Map<String,String> getParamList();
+/**
+ * This method generate the actual artifact i.e. project/code
+ */
+public String generateArtifact(String groupId, String version, String build, String caption, Dependency[] dependencies);
+/**
+ * This method generate the OpenShift deployment commands i.e. oc command list
+ */
+public String generateDeployment(String caption, Map<String,String> params,Dependency[] dependencies);
+
+```
+The getName() and getIcon() methods return the component representation in the components section and getDefaultAction() return the default action when another component call it e.g. REST for example.  
+The get ParamList() return the list of parameters that the user need to configure for this component, as in the screen shot above, MySQL needs the DB configuration parameters.  
+The 2 generation methods, generateArtifact() generates the actual code of project generation script while the generateDeployment() generates the deployment scripts, currently it returns OpenShift command line for deployment e.g. OC, it can be improved later on to either include command line or deployment.yml file.  
+If the component has no implementation for any method, just return null, for example, there is no artifact generation code for MySQL so its method return null.  
+  
+Any additional component that need to be added just need to implement the interface and then plugged into the GUI.  
+Currently the GUI is hard-coded later on the Components section will be generated from the available generators only.   
+
+

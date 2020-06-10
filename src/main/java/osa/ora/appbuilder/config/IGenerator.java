@@ -23,9 +23,25 @@ public interface IGenerator {
     public static String DB_USER_PASSWORD="DB User Password";
     
     //generator methods
+    /**
+     * Get component name
+     * @return 
+     */
     public String getName();
+    /**
+     * Get component icon, need to be added to the images folder
+     * @return 
+     */
     public String getIcon();
+    /**
+     * Get component default action when other components connect to it
+     * @return 
+     */
     public String getDefaultProducerAction();
+    /**
+     * This method return the list of parameters that is required for this component.
+     * @return Map including the list of the parameters for this component
+     */
     public Map<String,String> getParamList();
     /**
      * This method generate the actual artifact i.e. project/code
