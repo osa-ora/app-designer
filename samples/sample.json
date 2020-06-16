@@ -27,6 +27,12 @@
 ,
 {"key":"External",
 "value":"FALSE"}
+,
+{"key":"Memory Size",
+"value":"512"}
+,
+{"key":"Storage Size",
+"value":"512"}
 ],
 "dependencies":[
 ]
@@ -55,6 +61,12 @@
 ,
 {"key":"External",
 "value":"FALSE"}
+,
+{"key":"Memory Size",
+"value":"512"}
+,
+{"key":"Storage Size",
+"value":"512"}
 ],
 "dependencies":[
 ]
@@ -83,6 +95,12 @@
 ,
 {"key":"External",
 "value":"FALSE"}
+,
+{"key":"Memory Size",
+"value":"1024"}
+,
+{"key":"Storage Size",
+"value":"0"}
 ],
 "dependencies":[
 ]
@@ -102,6 +120,9 @@
 ,
 {"key":"External",
 "value":"FALSE"}
+,
+{"key":"Replica Count",
+"value":"2"}
 ],
 "dependencies":[
 {"type":"PostgreSQL",
@@ -124,6 +145,9 @@
 ,
 {"key":"External",
 "value":"FALSE"}
+,
+{"key":"Replica Count",
+"value":"2"}
 ],
 "dependencies":[
 {"type":"MySQL",
@@ -146,6 +170,9 @@
 ,
 {"key":"External",
 "value":"FALSE"}
+,
+{"key":"Replica Count",
+"value":"2"}
 ],
 "dependencies":[
 {"type":"MySQL",
@@ -165,6 +192,9 @@
 "params":[
 {"key":"External",
 "value":"TRUE"}
+,
+{"key":"Replica Count",
+"value":"1"}
 ],
 "dependencies":[
 {"type":"Quarkus",
