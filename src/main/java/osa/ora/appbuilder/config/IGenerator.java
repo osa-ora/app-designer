@@ -18,9 +18,12 @@ public interface IGenerator {
     public static String VERSION="Version";
     public static String NATIVE="Native";
     public static String DB_NAME="DB Name";
+    public static String STORAGE_SIZE="Storage Size";
+    public static String MEMORY_SIZE="Memory Size";
     public static String DB_ROOT_PASSWORD="DB Root Password";
     public static String DB_USER="DB User";
     public static String DB_USER_PASSWORD="DB User Password";
+    public static String REPLICA="Replica Count";
     
     //generator methods
     /**

@@ -40,6 +40,8 @@ public class MySQLGenerator implements IGenerator{
             mapList.put(DB_ROOT_PASSWORD, "root_password");
             mapList.put(DB_USER, "db_user");
             mapList.put(DB_USER_PASSWORD, "db_user_password");
+            mapList.put(STORAGE_SIZE,"512");
+            mapList.put(MEMORY_SIZE,"512");
             mapList.put(VERSION, null);
             mapList.put(EXTERNAL, null);
         }
@@ -50,9 +52,19 @@ public class MySQLGenerator implements IGenerator{
     public String generateDeployment(String caption, Map<String,String> params,Dependency[] dependencies) {
         //use latest version
         params.put(VERSION, "8.0");
+        //check MySQL type if storage is required or not?
+        String mySQL="mysql-persistent";
+        if(params.get(STORAGE_SIZE)==null || "0".equals(params.get(STORAGE_SIZE))){
+            mySQL="mysql-ephemeral";
+        }
         //create command using the required parameters
-        String command="oc new-app mysql-persistent -p DATABASE_SERVICE_NAME="+caption+" -p  MYSQL_ROOT_PASSWORD="+params.get(DB_ROOT_PASSWORD)+" -p MYSQL_DATABASE="+params.get(DB_NAME)
-                + " -p MYSQL_USER="+params.get(DB_USER)+" -p MYSQL_PASSWORD="+params.get(DB_USER_PASSWORD)+" -p MEMORY_LIMIT=512Mi -p VOLUME_CAPACITY=512Mi -p MYSQL_VERSION="+params.get(VERSION)+"\n";
+        String command="oc new-app "+mySQL+" -p DATABASE_SERVICE_NAME="+caption+" -p  MYSQL_ROOT_PASSWORD="+params.get(DB_ROOT_PASSWORD)+" -p MYSQL_DATABASE="+params.get(DB_NAME)
+                + " -p MYSQL_USER="+params.get(DB_USER)+" -p MYSQL_PASSWORD="+params.get(DB_USER_PASSWORD)+" -p MEMORY_LIMIT="+params.get(MEMORY_SIZE)+"Mi -p MYSQL_VERSION="+params.get(VERSION);
+        if(mySQL.equals("mysql-persistent")){
+            command+=" -p VOLUME_CAPACITY="+params.get(STORAGE_SIZE)+"Mi\n";
+        }else{
+            command+="\n";
+        }
         //expose the service in case it is external service
         if(params.get(EXTERNAL)!=null && Boolean.parseBoolean(params.get(EXTERNAL))){
             command+="oc expose svc/"+caption+"\n";

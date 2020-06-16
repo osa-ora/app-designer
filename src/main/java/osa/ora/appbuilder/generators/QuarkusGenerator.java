@@ -38,6 +38,7 @@ public class QuarkusGenerator implements IGenerator{
             mapList=new HashMap<String,String>();
             mapList.put(VERSION, null);
             mapList.put(EXTERNAL, "FALSE");
+            mapList.put(REPLICA, "1");
             mapList.put(NATIVE, "TRUE");
         }
         return mapList;
@@ -61,6 +62,9 @@ public class QuarkusGenerator implements IGenerator{
         //expose if external service is required
         if(params.get(EXTERNAL)!=null && Boolean.parseBoolean(params.get(EXTERNAL))){
             command+="oc expose svc/"+caption+"\n";
+        }
+        if(params.get(REPLICA)!=null && Integer.parseInt(params.get(REPLICA))>1){
+            command+="oc scale dc/"+caption+" --replicas="+Integer.parseInt(params.get(REPLICA))+"\n";
         }
         command+="cd ..\n";
         //System.out.println("Command="+command);
