@@ -69,7 +69,11 @@ public String generateDeployment(String caption, Map<String,String> params,Depen
 
 ```
 The getName() and getIcon() methods return the component representation in the components section and getDefaultAction() return the default action when another component call it e.g. REST for example.  
-The get ParamList() return the list of parameters that the user need to configure for this component, as in the screen shot above, MySQL needs the DB configuration parameters.  
+The get ParamList() return the list of parameters that the user need to configure for this component, as in the following screen shot, MySQL needs the DB configuration parameters.  
+
+![props](https://user-images.githubusercontent.com/18471537/84826559-67cc2f00-b023-11ea-9202-60d6244f86fb.png)
+
+
 The 2 generation methods, generateArtifact() generates the actual code of project generation script while the generateDeployment() generates the deployment scripts, currently it returns OpenShift command line for deployment e.g. OC, it can be improved later on to either include command line or deployment.yml file.  
 If the component has no implementation for any method, just return null, for example, there is no artifact generation code for MySQL so its method return null.  
   
