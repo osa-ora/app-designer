@@ -29,7 +29,7 @@ public class MySQLGenerator implements IGenerator{
 
     @Override
     public String getDefaultProducerAction() {
-        return "REST";
+        return "Persist";
     }
 
     @Override
