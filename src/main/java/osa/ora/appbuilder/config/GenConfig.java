@@ -46,9 +46,16 @@ public class GenConfig {
        generatorList.put(javeGenerator.getName().toUpperCase(), javeGenerator);    
     }
     public IGenerator getGeneratorForType(String type){
-        if(generatorList.get(type)!=null){
-            return generatorList.get(type);
+        if(getGeneratorList().get(type)!=null){
+            return getGeneratorList().get(type);
         }
         return null;
     } 
+
+    /**
+     * @return the generatorList
+     */
+    public Map<String, IGenerator> getGeneratorList() {
+        return generatorList;
+    }
 }

@@ -1,8 +1,14 @@
+<%@page import="java.util.HashMap"%>
+<%@page import="java.util.Set"%>
+<%@page import="osa.ora.appbuilder.config.GenConfig"%>
+<%@page import="osa.ora.appbuilder.config.IGenerator"%>
+<%@page import="java.util.Map"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
+        <link rel="shortcut icon" href="favicon.ico"/>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link rel="stylesheet" href="css/domarrow.css">
         <link rel="stylesheet" href="css/builder.css">
@@ -19,69 +25,71 @@
         <tr><td style="vertical-align:top;" height="10%">
         <div class="box" width="100%" id="drag1_div" ondrop="drop_back(event)" ondragover="allowDrop(event)" style="vertical-align:top;">
             <h2>Components</h2>
-                <table><tr><td style="border:1px solid black;">
-                <img src="images/quarkus.png" alt="Quarkus" title="Quarkus" action="REST" draggable="true" ondragstart="drag(event)" id="drag1" 
-                     param1="Native" param2="External" param3="Replica Count"
-                     param1_value="TRUE" param2_value="FALSE"  param3_value="2"
-                     width="50" height="50">
-                </td><td style="border:1px solid black;">
-                <img src="images/java_logo.png" alt="Java" title="Java" action="REST" draggable="true" ondragstart="drag(event)" id="drag2" 
-                     param1="External" param2="Replica Count"
-                     param1_value="FALSE"  param2_value="2"
-                     width="50" height="50">
-                </td></tr>
+                <table>
+                    <tr>
+                    <% Map<String, IGenerator> genList=GenConfig.getInstance().getGeneratorList(); 
+                       Set<String> keys=genList.keySet();
+                       int count=0;
+                       int i=0;
+                       for(String key:keys){
+                           IGenerator gen=genList.get(key);
+                           count++;
+                           i++;
+                           if(count>2) {
+                               count=1;
+                               out.println("</tr><tr>");
+                           }
+                           %>
+                            <td style="border:1px solid black;">
+                                <img src="images/<%=gen.getIcon()%>" alt="<%=gen.getName()%>" title="<%=gen.getName()%>" action="<%=gen.getDefaultProducerAction()%>" draggable="true" ondragstart="drag(event)" id="drag<%=i%>" 
+                                <%
+                                    HashMap<String, String> params=(HashMap)gen.getParamList();
+                                    Set<String> paramkeys=params.keySet();
+                                    int n=0;
+                                    for(String paramKey:paramkeys){
+                                        n++;
+                                        out.print("param"+n+"=\""+paramKey+"\"");
+                                        out.print("param"+n+"_value=\""+params.get(paramKey)+"\"");
+                                    }
+                                %>     
+                                width="50" height="50">
+                            </td>
+                       <%}
+                    %>
+                </tr>
+                <tr>
+                    <td colspan="2"><hr></td>
+                </tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/spring-boot.png" alt="SpringBoot" action="REST" title="SpringBoot" draggable="true" ondragstart="drag(event)" id="drag3" 
+                <img src="images/spring-boot.png" alt="SpringBoot" action="REST" title="SpringBoot" draggable="true" ondragstart="drag(event)" id="drag13" 
                      param1="External" param2="Replica Count"
                      param1_value="FALSE" param2_value="2"
                      width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/nodejs.png" alt="NodeJS" title="NodeJS" action="REST" draggable="true" ondragstart="drag(event)" id="drag4" 
+                <img src="images/nodejs.png" alt="NodeJS" title="NodeJS" action="REST" draggable="true" ondragstart="drag(event)" id="drag14" 
                      param1="External" param2="Replica Count"
                      param1_value="FALSE" param2_value="2"
                      width="50" height="50">
                 </td ></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/jboss.png" alt="JBoss" action="Web" title="JBoss" draggable="true" ondragstart="drag(event)" id="drag5" 
-                     param1="External" param2="Replica Count"
-                     param1_value="FALSE" param2_value="2"
-                     width="50" height="50">
+                <img src="images/mongodb.png" alt="MongoDB" action="Persist" title="MongoDB" draggable="true" ondragstart="drag(event)" id="drag15" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/tomcat.png" alt="Tomcat" title="Tomcat" action="Web" draggable="true" ondragstart="drag(event)" id="drag6" 
-                     param1="External" param2="Replica Count"
-                     param1_value="FALSE" param2_value="2"
-                     width="50" height="50">
-                </td ></tr>
-                <tr><td style="border:1px solid black;">
-                <img src="images/mysql.png" alt="MySQL" title="MySQL" action="Persist" draggable="true" ondragstart="drag(event)" id="drag7" 
-                     param1="DB Name" param2="DB Root Password" param3="DB User" param4="DB User Password" param5="External" param6="Memory Size" param7="Storage Size"
-                     param1_value="DB_Name" param2_value="Root_Password" param3_value="DB_User" param4_value="DB_User_Password" param5_value="FALSE" param6_value="512" param7_value="512"
-                     width="50" height="50">
-                </td><td style="border:1px solid black;">
-                <img src="images/postgresql.png" alt="PostgreSQL" action="Persist" title="PostgreSQL" draggable="true" ondragstart="drag(event)" id="drag8" 
-                     param1="DB Name" param2="DB Root Password" param3="DB User" param4="DB User Password" param5="External"
-                     param1_value="DB_Name" param2_value="Root_Password" param3_value="DB_User" param4_value="DB_User_Password" param5_value="FALSE" 
-                     width="50" height="50">
+                <img src="images/activemq.png" alt="ActiveMQ" action="Pub/Sub" title="ActiveMQ" draggable="true" ondragstart="drag(event)" id="drag16" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/mongodb.png" alt="MongoDB" action="Persist" title="MongoDB" draggable="true" ondragstart="drag(event)" id="drag9" width="50" height="50">
+                <img src="images/kafka.png" alt="Kafka" action="Pub/Sub" title="Kafka" draggable="true" ondragstart="drag(event)" id="drag17" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/activemq.png" alt="ActiveMQ" action="Pub/Sub" title="ActiveMQ" draggable="true" ondragstart="drag(event)" id="drag10" width="50" height="50">
+                <img src="images/redis.png" alt="Redis" action="Cache" title="Redis" draggable="true" ondragstart="drag(event)" id="drag18" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/kafka.png" alt="Kafka" action="Pub/Sub" title="Kafka" draggable="true" ondragstart="drag(event)" id="drag11" width="50" height="50">
+                <img src="images/net_core.png" alt=".Net" action="REST" title=".NetCore" draggable="true" ondragstart="drag(event)" id="drag19" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/redis.png" alt="Redis" action="Cache" title="Redis" draggable="true" ondragstart="drag(event)" id="drag12" width="50" height="50">
+                <img src="images/vertx.png" alt="VertX" action="REST" title="VertX" draggable="true" ondragstart="drag(event)" id="drag20" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/net_core.png" alt=".Net" action="REST" title=".NetCore" draggable="true" ondragstart="drag(event)" id="drag13" width="50" height="50">
+                <img src="images/knative.png" alt="KNative" action="REST" title="KNative" draggable="true" ondragstart="drag(event)" id="drag21" width="50" height="50">
                 </td><td style="border:1px solid black;">
-                <img src="images/vertx.png" alt="VertX" action="REST" title="VertX" draggable="true" ondragstart="drag(event)" id="drag14" width="50" height="50">
-                </td></tr>
-                <tr><td style="border:1px solid black;">
-                <img src="images/knative.png" alt="KNative" action="REST" title="KNative" draggable="true" ondragstart="drag(event)" id="drag15" width="50" height="50">
-                </td><td style="border:1px solid black;">
-                <img src="images/3scale.png" alt="3Scale" action="REST" title="3Scale" draggable="true" ondragstart="drag(event)" id="drag16" width="50" height="50">
+                <img src="images/3scale.png" alt="3Scale" action="REST" title="3Scale" draggable="true" ondragstart="drag(event)" id="drag22" width="50" height="50">
                 </td></tr>
                 </table>
         </div>

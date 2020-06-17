@@ -152,10 +152,18 @@ function generateDynamicParametersFields(element){
                 ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="1" max="12" step="1" onInput="document.getElementById(\'replica\').innerHTML = this.value;"></div>';   
         }else if(element.getAttribute("param"+itemNo)=='Storage Size'){  
             dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="storage">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
-                ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="0" max="4048" step="256" onInput="document.getElementById(\'storage\').innerHTML = this.value+\'Mi\';"></div>';   
+                ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="0" max="4096" step="256" onInput="document.getElementById(\'storage\').innerHTML = this.value+\'Mi\';"></div>';   
         }else if(element.getAttribute("param"+itemNo)=='Memory Size'){  
             dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="memory">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
-                ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="256" max="4048" step="256" onInput="document.getElementById(\'memory\').innerHTML = this.value+\'Mi\';"></div>';   
+                ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="256" max="4096" step="256" onInput="document.getElementById(\'memory\').innerHTML = this.value+\'Mi\';"></div>';   
+        }else if(element.getAttribute("param"+itemNo)=='External' || element.getAttribute("param"+itemNo)=='Native'){  
+            dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'</div>'+
+                ' <input type="checkbox" id="param'+itemNo+'" ';
+            if(element.getAttribute('param'+itemNo+'_value')=='TRUE'){
+                dynamic_parameters+='checked>';
+            }else{
+                dynamic_parameters+='>';
+            }
         } else{
             dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'</div>'+
                 ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'">';
@@ -171,7 +179,15 @@ function generateDynamicParametersFields(element){
 function updateParams(element){
     var itemNo=1;
     while(element.getAttribute("param"+itemNo)!=null){
-        element.setAttribute("param"+itemNo+"_value",document.getElementById("param"+itemNo).value);
+        if(element.getAttribute("param"+itemNo)=='External' || element.getAttribute("param"+itemNo)=='Native'){ 
+            if(document.getElementById("param"+itemNo).checked){
+                element.setAttribute("param"+itemNo+"_value","TRUE");
+            }else{
+                element.setAttribute("param"+itemNo+"_value","FALSE");                
+            }
+        }else {
+            element.setAttribute("param"+itemNo+"_value",document.getElementById("param"+itemNo).value);
+        }
         itemNo++;
         //max 10 parameters
         if(itemNo>=max_params) break;
@@ -180,6 +196,14 @@ function updateParams(element){
 }
 //this function creata a component
 function createComponent(imgSrc,alt,id,x,y,key,xx,yy,caption,action,dynamicParams){
+    //check if same service name is used
+    var similar=validateUniqueCaption(caption);
+    while(similar>0){
+        similar++;
+        caption+=''+similar;
+        similar=validateUniqueCaption(caption);
+    }
+    //create the component
     var content='<img src="'+imgSrc+'" alt="'+alt+'" action="'+action+'" draggable="true" ondragstart="drag(event)" id="'+id+'" onclick="startLine('+id+');" width="'+icon_width+'" height="'+icon_height+'" style="position:absolute; left:'+
             x+'; top:'+y+';" class="component" '+dynamicParams+' >'+
             '<label id="'+key+'" style="position:absolute; left:'+xx+'px; top:'+yy+'px; font-size:8pt;font-family:arial;font-weight:bold;" onclick="updateCaption('+key+','+parseInt(x)+')">'+caption+'</label>';
@@ -188,10 +212,31 @@ function createComponent(imgSrc,alt,id,x,y,key,xx,yy,caption,action,dynamicParam
 //update the component caption
 function newCaption(caption,element,x){
     if(caption==null || caption=='') return;
+    //check if same service name is used
+    element.textContent='';
+    var similar=validateUniqueCaption(caption);
+    while(similar>0){
+        similar++;
+        caption+=''+similar;
+        similar=validateUniqueCaption(caption);
+    }
     element.textContent=caption;
     //calculate and adjust the new caption location
     xx=x-((getTextWidth(caption)-icon_width)/2);
     element.style.left=xx+'px';
+}
+//method to check if a service name/caption is unique
+function validateUniqueCaption(caption){
+    var allImages = document.getElementsByTagName("img");
+    var similarCount=0;
+    for (var i=0; i < allImages.length; i++) {
+        if(allImages[i].id.indexOf("_")!=-1) {
+            if(document.getElementById(allImages[i].id+"_l").textContent==caption) {
+                similarCount++;
+            }
+        }
+    }
+    return similarCount;
 }
 //this function update the component caption
 function updateCaption(key,x){

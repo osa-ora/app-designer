@@ -90,7 +90,7 @@ public class SaveServlet extends HttpServlet {
             output.write("<center><h2>Generation Script</h2><hr width='30%'><br></center>".getBytes());
             for (Component comp : app.getComponents()) {
                 IGenerator gen=genConfig.getGeneratorForType(comp.getType().toUpperCase()); 
-                System.out.println("Get Generator for type:"+comp.getType());
+                //System.out.println("Get Generator for type:"+comp.getType());
                 //System.out.println("Parameters:"+comp.getParams().length);
                 //System.out.println("Generator="+genConfig.getGeneratorForType(comp.getType().toUpperCase()));
                 //make sure all service names are lower case
