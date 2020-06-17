@@ -40,10 +40,10 @@ public class MySQLGenerator implements IGenerator{
             mapList.put(DB_ROOT_PASSWORD, "root_password");
             mapList.put(DB_USER, "db_user");
             mapList.put(DB_USER_PASSWORD, "db_user_password");
+            //mapList.put(VERSION, null);
+            mapList.put(EXTERNAL, "FALSE");
             mapList.put(STORAGE_SIZE,"512");
             mapList.put(MEMORY_SIZE,"512");
-            mapList.put(VERSION, null);
-            mapList.put(EXTERNAL, null);
         }
         return mapList;
     }

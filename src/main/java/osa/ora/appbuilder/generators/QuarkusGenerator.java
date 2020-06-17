@@ -36,7 +36,7 @@ public class QuarkusGenerator implements IGenerator{
     public Map<String, String> getParamList() {
         if(mapList==null){
             mapList=new HashMap<String,String>();
-            mapList.put(VERSION, null);
+            //mapList.put(VERSION, null);
             mapList.put(EXTERNAL, "FALSE");
             mapList.put(REPLICA, "1");
             mapList.put(NATIVE, "TRUE");
