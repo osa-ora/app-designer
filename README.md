@@ -2,7 +2,7 @@
 "Build Cloud Native Applications as Monolithic Applications"  
 A simple and innovative way to build cloud native application. To do so you configure the application technology stack. Use the stack to build the cloud native application. Generate the application artifacts as per the application architecture. For example, if you build Quarkus service that stores data in MySQL DB, the tool will generate the quarkus dependencies with dns name of MySQL name as per the architecture.  
 The tool will also generate the deployment artifact for all components based on Kubernates/OpenShift. Think of this tool as a way to handle cloud native applications as a monolith application, from the design, code generation and deployment configurations.  
-At the moment, the tool support some generators like Quarkus and Java where it will generate both project skeleton and deployment scripts. While in some generators it will only generate the deployment artifacts such as Tomcat, JBoss, MySQL and PostgreSQL.  
+At the moment, the tool support some generators like Quarkus and Java where it will generate both project skeleton and deployment scripts. While in some generators it will only generate the deployment artifacts such as Tomcat, JBoss, MySQL, MariaDB, MongoDB and PostgreSQL.  
 This is just the initial functionality which will be extended to generate all possible configurations.  
 Later on, support to generate the whole stack in different technologies will be added gradually by adding more Generator types (classes that implements IGenerator interface).   
 Also the GUI will be later on generated only by the available Generators (but at the moment some are generated from the Generators and others are hard-coded until their generators are available)  
@@ -44,8 +44,10 @@ You can configure the stack as well (under development)
 
 And you can also configure each component properties, for example MySQL DB configurations, etc.
 
-![sample](https://user-images.githubusercontent.com/18471537/84061321-03272980-a9be-11ea-9380-80aaf0c66d70.png)
-  
+![sample](https://user-images.githubusercontent.com/18471537/85133765-9ae90b00-b23b-11ea-9ebc-7a9b9e7b79a8.png)
+
+As we can see this is a simple architecture where Java Web application deployed on JBoss/Tomcat connect to 3 different Quarkus services via REST APIs, all have connected DB to persist the data. Among these DB some have storage connected and other just ephemeral DB.  
+    
 The tool uses the basic features without much dependencies, only JS library: domarrow is used to connect components in the drawing palette: https://github.com/schaumb/domarrow.js  
 
 # Overview of the Generator Framework  
@@ -53,7 +55,7 @@ Every Component in the palette has to implement IGenerator interface which then 
 
 ```
 public String getName();
-public String getIcon();
+public String getIcon(); //icon should be placed in the images folder  
 public String getDefaultProducerAction();
 /**
  * This method return the list of parameters that is required for this component.
@@ -70,10 +72,11 @@ public String generateDeployment(String caption, Map<String,String> params,Depen
 
 ```
 The getName() and getIcon() methods return the component representation in the components section and getDefaultAction() return the default action when another component call it e.g. REST for example.  
-The get ParamList() return the list of parameters that the user need to configure for this component, as in the following screen shot, MySQL needs the DB configuration parameters and Quarkus needs some other configurations like native or Java.  
+The get ParamList() return the list of parameters that the user need to configure for this component, as in the following screen shot, MySQL needs the DB configuration parameters and Quarkus needs some other configurations like native or Java. And Storage volume has only capacity property. 
 
-![props](https://user-images.githubusercontent.com/18471537/84871876-5dd91900-b081-11ea-9114-d2248e649e2b.png)
+![props](https://user-images.githubusercontent.com/18471537/85133784-a0deec00-b23b-11ea-8771-93bf4e8a9371.png)
 
+  
 
 The 2 generation methods, generateArtifact() generates the actual code of project generation script while the generateDeployment() generates the deployment scripts, currently it returns OpenShift command line for deployment e.g. OC, it can be improved later on to either include command line or deployment.yml file.  
 If the component has no implementation for any method, just return null, for example, there is no artifact generation code for MySQL so its method return null.  

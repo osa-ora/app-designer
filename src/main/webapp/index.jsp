@@ -72,9 +72,9 @@
                      width="50" height="50">
                 </td ></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/mongodb.png" alt="MongoDB" action="Persist" title="MongoDB" draggable="true" ondragstart="drag(event)" id="drag15" width="50" height="50">
-                </td><td style="border:1px solid black;">
                 <img src="images/activemq.png" alt="ActiveMQ" action="Pub/Sub" title="ActiveMQ" draggable="true" ondragstart="drag(event)" id="drag16" width="50" height="50">
+                </td><td style="border:1px solid black;">
+                <img src="images/knative.png" alt="KNative" action="REST" title="KNative" draggable="true" ondragstart="drag(event)" id="drag21" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
                 <img src="images/kafka.png" alt="Kafka" action="Pub/Sub" title="Kafka" draggable="true" ondragstart="drag(event)" id="drag17" width="50" height="50">
@@ -87,8 +87,6 @@
                 <img src="images/vertx.png" alt="VertX" action="REST" title="VertX" draggable="true" ondragstart="drag(event)" id="drag20" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/knative.png" alt="KNative" action="REST" title="KNative" draggable="true" ondragstart="drag(event)" id="drag21" width="50" height="50">
-                </td><td style="border:1px solid black;">
                 <img src="images/3scale.png" alt="3Scale" action="REST" title="3Scale" draggable="true" ondragstart="drag(event)" id="drag22" width="50" height="50">
                 </td></tr>
                 </table>

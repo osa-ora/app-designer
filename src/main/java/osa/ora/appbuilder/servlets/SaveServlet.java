@@ -97,13 +97,13 @@ public class SaveServlet extends HttpServlet {
                 comp.setCaption(comp.getCaption().toLowerCase());
                 if(gen!=null){
                     generatorFound=true;
-                    output.write(("<h2>Service:"+comp.getCaption()+"</h2>").getBytes());
+                    output.write(("<h2>Service:"+comp.getCaption()+" ["+gen.getName()+"]</h2>").getBytes());
                     //invoke code generation
                     String commands=gen.generateArtifact(app.getGroupId(), app.getVersion(), app.getBuild(),
                             comp.getCaption(),comp.getDependencies());
                     if(commands==null) {
                         commands="";
-                        output.write("No Generation Script<br>".getBytes());
+                        output.write(("No Generation Script<br>").getBytes());
                     }                    
                     //Dynamic populate the parameters
                     HashMap<String, String> params=new HashMap<>();

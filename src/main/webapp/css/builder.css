@@ -1,14 +1,14 @@
 /* styles for the drawing pannel */
 .pannel2 {
   width: 1000px;
-  height: 500px;
+  height: 600px;
   margin: 1px;
   padding: 1px;
   border: 1px solid black;
 }
 .pannel1 {
   width: 1000px;
-  height: 500px;
+  height: 600px;
   margin: 1px;
   padding: 1px;
   border: 1px solid black;
@@ -17,7 +17,7 @@
 }
 .pannel3 {
   width: 1000px;
-  height: 500px;
+  height: 600px;
   margin: 1px;
   padding: 1px;
   border: 1px solid black;

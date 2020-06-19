@@ -101,6 +101,9 @@ public class QuarkusGenerator implements IGenerator{
                 case "POSTGRESQL":
                     allDep+=command+"\"jdbc-postgres\"\n";
                     break;
+                case "MARIADB":
+                    allDep+=command+"\"jdbc-mariadb\"\n";
+                    break;
                 case "MONGODB":
                     allDep+=command+"\"mongodb-client\"\n";
                     break;
@@ -129,6 +132,9 @@ public class QuarkusGenerator implements IGenerator{
                 case "POSTGRESQL":
                     allDep+=command+"secrets\\"+dep.getName()+"\n";
                     break;
+                case "MARIADB":
+                    allDep+=command+"secrets\\"+dep.getName()+"\n";
+                    break;                    
                 case "MONGODB":
                     allDep+=command+"secrets\\"+dep.getName()+"\n";
                     break;

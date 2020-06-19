@@ -8,14 +8,15 @@ var canvas_width=1000;
 var canvas_height=600;
 var currentFormatVersion=1.0;
 var max_params=10;
+var withStorage=false;
 //function to start/end the connection between 2 components
 function startLine(source){
     //display the selected item details
     var object_props='<img src="'+source.src+'" width="50" height="50"><br>'+
     '<label>'+document.getElementById(source.id+'_l').innerHTML+'<br></label>'+
     ' <div>Service Name</div><input id="srv_name" value="'+document.getElementById(source.id+'_l').innerHTML+'">';
-    object_props+=generateDynamicParametersFields(source);
-    object_props+='<img src="images/save.png" width="50" height="50" onclick="updateParams('+source.id+');">';
+    object_props+=generateDynamicParametersFields(source,false);
+    object_props+='<img src="images/save.png" width="50" height="50" onclick="updateParams('+source.id+',false,false);">';
     object_props+=' <img src="images/trash.png" width="50" height="50" onclick="deleteComponentObj('+source.id+');">';
     document.getElementById("prop").innerHTML=object_props;
     //check if connection is switched on (between elements)
@@ -35,6 +36,16 @@ function startLine(source){
             drawLine(start, source);
         }
     }
+}
+//storage details
+function showStorageDetails(source){
+    //display the selected item details
+    var object_props='<img src="'+source.src+'" width="50" height="50"><br>'+
+    '<label>'+document.getElementById(source.id+'_l').innerHTML+' Storage Volume<br></label>';
+    object_props+=generateDynamicParametersFields(source,true);
+    object_props+='<img src="images/save.png" width="50" height="50" onclick="updateParams('+source.id+',true,false);">';
+    object_props+=' <img src="images/trash.png" width="50" height="50" onclick="updateParams('+source.id+',true,true);">';
+    document.getElementById("prop").innerHTML=object_props;
 }
 //function to draw a connection between 2 components
 function drawLine(obj1, obj2){
@@ -111,6 +122,7 @@ function drop(ev) {
             yy=y+icon_height+2;
             xx=x-((getTextWidth(caption)-icon_width)/2);
             key='drag_'+counter+'_l';
+            withStorage=false;
             var dynamicParams=generateDynamicParameters(my_element);
             document.getElementById("pannel").innerHTML=document.getElementById("pannel").innerHTML+
                     createComponent(my_element.src,my_element.alt,'drag_'+counter,x+'px',y+'px',key,xx,yy,caption,my_element.getAttribute("action"),dynamicParams);
@@ -118,10 +130,14 @@ function drop(ev) {
         }else{
             var caption=document.getElementById(my_element.id+'_l').textContent;
             document.getElementById(data).remove();
-            document.getElementById(data+'_l').remove();		
+            document.getElementById(data+'_l').remove();
+            if(document.getElementById(data+'@s')){
+                document.getElementById(data+'@s').remove();
+            }
             yy=y+icon_height+2;
             xx=x-((getTextWidth(caption)-icon_width)/2);
             key=my_element.id+'_l';
+            withStorage=false;
             var dynamicParams=generateDynamicParameters(my_element);
             document.getElementById("pannel").innerHTML=createComponent(my_element.src,my_element.alt,my_element.id,x+'px',y+'px',key,xx,yy,caption,my_element.getAttribute("action"),dynamicParams)+
                     document.getElementById("pannel").innerHTML; 
@@ -135,6 +151,11 @@ function generateDynamicParameters(element){
     while(element.getAttribute("param"+itemNo)!=null){
         dynamic_parameters+=' param'+itemNo+'="'+element.getAttribute("param"+itemNo)+'"'+
                 ' param'+itemNo+'_value="'+element.getAttribute('param'+itemNo+'_value')+'"';
+        if(element.getAttribute("param"+itemNo)=='Storage Size'){
+            if(element.getAttribute('param'+itemNo+'_value')>0){
+                withStorage=true;
+            }
+        }
         itemNo++;
         //max 10 parameters
         if(itemNo>=max_params) break;
@@ -142,57 +163,106 @@ function generateDynamicParameters(element){
     return dynamic_parameters;
 }
 //this function displays editable fields for a component
-function generateDynamicParametersFields(element){
+function generateDynamicParametersFields(element,onlyStorage){
     var dynamic_parameters="";
     var itemNo=1;
-    while(element.getAttribute("param"+itemNo)!=null){
-        //special case for replica and storage/memory
-        if(element.getAttribute("param"+itemNo)=='Replica Count'){  
-            dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="replica">'+element.getAttribute('param'+itemNo+'_value')+'</span></p>'+
-                ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="1" max="12" step="1" onInput="document.getElementById(\'replica\').innerHTML = this.value;"></div>';   
-        }else if(element.getAttribute("param"+itemNo)=='Storage Size'){  
-            dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="storage">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
-                ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="0" max="4096" step="256" onInput="document.getElementById(\'storage\').innerHTML = this.value+\'Mi\';"></div>';   
-        }else if(element.getAttribute("param"+itemNo)=='Memory Size'){  
-            dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="memory">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
-                ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="256" max="4096" step="256" onInput="document.getElementById(\'memory\').innerHTML = this.value+\'Mi\';"></div>';   
-        }else if(element.getAttribute("param"+itemNo)=='External' || element.getAttribute("param"+itemNo)=='Native'){  
-            dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'</div>'+
-                ' <input type="checkbox" id="param'+itemNo+'" ';
-            if(element.getAttribute('param'+itemNo+'_value')=='TRUE'){
-                dynamic_parameters+='checked>';
-            }else{
-                dynamic_parameters+='>';
+    if(onlyStorage){
+         while(element.getAttribute("param"+itemNo)!=null){
+            if(element.getAttribute("param"+itemNo)=='Storage Size'){  
+                dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="storage">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
+                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="0" max="4096" step="256" onInput="document.getElementById(\'storage\').innerHTML = this.value+\'Mi\';"></div>';   
             }
-        } else{
-            dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'</div>'+
-                ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'">';
+            itemNo++;
+            //max 10 parameters
+            if(itemNo>=max_params) break;
+         }
+    }else {
+        while(element.getAttribute("param"+itemNo)!=null){
+            //special case for replica and storage/memory
+            if(element.getAttribute("param"+itemNo)=='Replica Count'){  
+                dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="replica">'+element.getAttribute('param'+itemNo+'_value')+'</span></p>'+
+                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="1" max="12" step="1" onInput="document.getElementById(\'replica\').innerHTML = this.value;"></div>';   
+            }else if(element.getAttribute("param"+itemNo)=='Storage Size'){  
+                dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="storage">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
+                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="0" max="4096" step="256" onInput="document.getElementById(\'storage\').innerHTML = this.value+\'Mi\';"></div>';   
+            }else if(element.getAttribute("param"+itemNo)=='Memory Size'){  
+                dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="memory">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
+                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="256" max="4096" step="256" onInput="document.getElementById(\'memory\').innerHTML = this.value+\'Mi\';"></div>';   
+            }else if(element.getAttribute("param"+itemNo)=='External' || element.getAttribute("param"+itemNo)=='Native'){  
+                dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'</div>'+
+                    ' <input type="checkbox" id="param'+itemNo+'" ';
+                if(element.getAttribute('param'+itemNo+'_value')=='TRUE'){
+                    dynamic_parameters+='checked>';
+                }else{
+                    dynamic_parameters+='>';
+                }
+            } else{
+                dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'</div>'+
+                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'">';
+            }
+            itemNo++;
+            //max 10 parameters
+            if(itemNo>=max_params) break;
         }
-        itemNo++;
-        //max 10 parameters
-        if(itemNo>=max_params) break;
     }
     return dynamic_parameters;
 }
 //this function updates the custome paramters of a component plus its caption
 //from the component properties
-function updateParams(element){
+function updateParams(element,onlyStorage,removeStorage){
     var itemNo=1;
-    while(element.getAttribute("param"+itemNo)!=null){
-        if(element.getAttribute("param"+itemNo)=='External' || element.getAttribute("param"+itemNo)=='Native'){ 
-            if(document.getElementById("param"+itemNo).checked){
-                element.setAttribute("param"+itemNo+"_value","TRUE");
-            }else{
-                element.setAttribute("param"+itemNo+"_value","FALSE");                
+    if(onlyStorage){
+        while(element.getAttribute("param"+itemNo)!=null){
+            if(element.getAttribute("param"+itemNo)=='Storage Size'){
+                //update storage size or delete it 
+                if(removeStorage){
+                    element.setAttribute("param"+itemNo+"_value",0);
+                }else{
+                    element.setAttribute("param"+itemNo+"_value",document.getElementById("param"+itemNo).value);
+                }
+                //delete it if value is zero
+                if(element.getAttribute("param"+itemNo+"_value")==0){
+                    if(document.getElementById(element.id+'@s')!=null){
+                        document.getElementById(element.id+'@s').remove();
+                        resetPropes();
+                    }
+                }
             }
-        }else {
-            element.setAttribute("param"+itemNo+"_value",document.getElementById("param"+itemNo).value);
+            itemNo++;
+            //max 10 parameters
+            if(itemNo>=max_params) break;
         }
-        itemNo++;
-        //max 10 parameters
-        if(itemNo>=max_params) break;
+    }else{
+        while(element.getAttribute("param"+itemNo)!=null){
+            if(element.getAttribute("param"+itemNo)=='External' || element.getAttribute("param"+itemNo)=='Native'){ 
+                if(document.getElementById("param"+itemNo).checked){
+                    element.setAttribute("param"+itemNo+"_value","TRUE");
+                }else{
+                    element.setAttribute("param"+itemNo+"_value","FALSE");                
+                }
+            }else {
+                element.setAttribute("param"+itemNo+"_value",document.getElementById("param"+itemNo).value);
+                if(element.getAttribute("param"+itemNo)=='Storage Size'){
+                    if(element.getAttribute("param"+itemNo+"_value")>0){
+                        if(document.getElementById(element.id+'@s')==null){
+                            //add storage icon
+                            var content='<img src="images/storage.png" id="'+element.id+'@s" width="'+icon_width+'" height="'+icon_height+'" onclick="showStorageDetails('+element.id+');" style="position:absolute; left:'+
+                                element.style.left+'; top:'+parseInt(parseInt(element.style.top)+70)+'px;" class="component">';
+                            document.getElementById("pannel").innerHTML+=content;
+                        }
+                    }else{
+                        if(document.getElementById(element.id+'@s')!=null){
+                            document.getElementById(element.id+'@s').remove();
+                        }
+                    }
+                }
+            }
+            itemNo++;
+            //max 10 parameters
+            if(itemNo>=max_params) break;
+        }
+        newCaption(document.getElementById("srv_name").value,document.getElementById(element.id+'_l'),parseInt(document.getElementById(element.id).style.left));
     }
-    newCaption(document.getElementById("srv_name").value,document.getElementById(element.id+'_l'),parseInt(document.getElementById(element.id).style.left));
 }
 //this function creata a component
 function createComponent(imgSrc,alt,id,x,y,key,xx,yy,caption,action,dynamicParams){
@@ -203,10 +273,17 @@ function createComponent(imgSrc,alt,id,x,y,key,xx,yy,caption,action,dynamicParam
         caption+=''+similar;
         similar=validateUniqueCaption(caption);
     }
+    xx=parseInt(x)-((getTextWidth(caption)-icon_width)/2);
     //create the component
     var content='<img src="'+imgSrc+'" alt="'+alt+'" action="'+action+'" draggable="true" ondragstart="drag(event)" id="'+id+'" onclick="startLine('+id+');" width="'+icon_width+'" height="'+icon_height+'" style="position:absolute; left:'+
             x+'; top:'+y+';" class="component" '+dynamicParams+' >'+
             '<label id="'+key+'" style="position:absolute; left:'+xx+'px; top:'+yy+'px; font-size:8pt;font-family:arial;font-weight:bold;" onclick="updateCaption('+key+','+parseInt(x)+')">'+caption+'</label>';
+    if(withStorage){
+        withStorage=false;
+        //add storage icon
+        content+='<img src="images/storage.png" id="'+id+'@s" width="'+icon_width+'" height="'+icon_height+'" onclick="showStorageDetails('+id+');" style="position:absolute; left:'+
+            x+'; top:'+parseInt(parseInt(y)+70)+'px;" class="component">';
+    }
     return content;
 }
 //update the component caption
@@ -230,9 +307,11 @@ function validateUniqueCaption(caption){
     var allImages = document.getElementsByTagName("img");
     var similarCount=0;
     for (var i=0; i < allImages.length; i++) {
-        if(allImages[i].id.indexOf("_")!=-1) {
-            if(document.getElementById(allImages[i].id+"_l").textContent==caption) {
-                similarCount++;
+        if(allImages[i].id.indexOf("_")!=-1 && allImages[i].src.indexOf('storage')==-1) {
+            if(document.getElementById(allImages[i].id+"_l")!=null){
+                if(document.getElementById(allImages[i].id+"_l").textContent==caption) {
+                    similarCount++;
+                }
             }
         }
     }
@@ -260,9 +339,15 @@ function deleteComponent(data){
         if(validateConnections(data)==true) {alert('Delete its connection(s) first!');return;}
         document.getElementById(data).remove();
         document.getElementById(data+'_l').remove();
-        document.getElementById("prop").innerHTML='<br><br><br><label>No Component Selected</label>';
-        startDraw=false;
+        if(document.getElementById(element.id+'@s')!=null){
+            document.getElementById(element.id+'@s').remove();
+        }
+        resetPropes();
     }
+}
+function resetPropes(){
+    document.getElementById("prop").innerHTML='<br><br><br><label>No Component Selected</label>';
+    startDraw=false;
 }
 //this component deletes component using the object itself
 function deleteComponentObj(data){
@@ -271,8 +356,10 @@ function deleteComponentObj(data){
         if(validateConnections(data.id)==true) {alert('Delete its connection(s) first!');return;}
         data.remove();
         document.getElementById(data.id+'_l').remove();
-        document.getElementById("prop").innerHTML='<br><br><br><label>No Component Selected</label>';
-        startDraw=false;
+        if(document.getElementById(element.id+'@s')!=null){
+            document.getElementById(element.id+'@s').remove();
+        }
+        resetPropes();
     }
 }
 //validate if component already connected to a connection
@@ -298,9 +385,10 @@ function generateHTML(){
     var content='';
     var allImages = document.getElementsByTagName("img");
     for (var i=0; i < allImages.length; i++) {
-        if(allImages[i].id.indexOf("_")!=-1) {
+        if(allImages[i].id.indexOf("_")!=-1 && allImages[i].src.indexOf('storage')==-1) {
             content+=allImages[i].outerHTML;
-            content+=document.getElementById(allImages[i].id+"_l").outerHTML;
+            if(document.getElementById(allImages[i].id+"_l")!=null)
+                content+=document.getElementById(allImages[i].id+"_l").outerHTML;
         }
     }
     var allConnections = document.getElementsByTagName("connection");
@@ -320,7 +408,7 @@ function generateJSON(){
     content+='"components":[\n';
     var found=false;
     for (var i=0; i < allImages.length; i++) {
-        if(allImages[i].id.indexOf("_")!=-1) {
+        if(allImages[i].id.indexOf("_")!=-1 && allImages[i].src.indexOf('storage')==-1) {
             if(found) content+=',\n';
             found=true;
             content+='{\n';
@@ -401,9 +489,15 @@ function loadJSON(mydata){
         xx=parseInt(mydata.components[i].x)-((getTextWidth(mydata.components[i].caption)-icon_width)/2);
         key=mydata.components[i].id+'_l';
         var dynamicParams='';
+        withStorage=false;
         for(var s=1;s<=mydata.components[i].params.length;s++){
             dynamicParams+=' param'+s+'="'+mydata.components[i].params[s-1].key+'"'+
                 ' param'+s+'_value="'+mydata.components[i].params[s-1].value+'"';
+            if(mydata.components[i].params[s-1].key=='Storage Size'){
+                if(mydata.components[i].params[s-1].value>0){
+                    withStorage=true;
+                }
+            }
         }
         content+=createComponent(mydata.components[i].src,mydata.components[i].type,mydata.components[i].id,mydata.components[i].x,mydata.components[i].y,key,xx,yy,mydata.components[i].caption,mydata.components[i].action,dynamicParams);
     }

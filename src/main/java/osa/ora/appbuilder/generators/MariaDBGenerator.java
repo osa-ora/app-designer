@@ -14,17 +14,17 @@ import osa.ora.appbuilder.config.IGenerator;
  *
  * @author Osama Oransa
  */
-public class PostgreSQLGenerator implements IGenerator{
+public class MariaDBGenerator implements IGenerator{
     private Map<String,String> mapList=null;
 
     @Override
     public String getName() {
-        return "PostgreSQL";
+        return "MariaDB";
     }
 
     @Override
     public String getIcon() {
-        return "postgresql.png";
+        return "mariadb.png";
     }
 
     @Override
@@ -37,6 +37,7 @@ public class PostgreSQLGenerator implements IGenerator{
         if(mapList==null){
             mapList=new HashMap<String,String>();
             mapList.put(DB_NAME, "db_name");
+            mapList.put(DB_ROOT_PASSWORD, "root_password");
             mapList.put(DB_USER, "db_user");
             mapList.put(DB_USER_PASSWORD, "db_user_password");
             //mapList.put(VERSION, null);
@@ -50,16 +51,16 @@ public class PostgreSQLGenerator implements IGenerator{
     @Override 
     public String generateDeployment(String caption, Map<String,String> params,Dependency[] dependencies) {
         //use latest version
-        params.put(VERSION, "10");
-        //check postgreSQL template type if storage is required or not?
-        String postgreSQL="postgresql-persistent";
+        params.put(VERSION, "10.2");
+        //check MariaDB template type if storage is required or not?
+        String mariaDB="mariadb-persistent";
         if(params.get(STORAGE_SIZE)==null || "0".equals(params.get(STORAGE_SIZE))){
-            postgreSQL="postgresql-ephemeral";
+            mariaDB="mariadb-ephemeral";
         }
         //create command using the required parameters
-        String command="oc new-app "+postgreSQL+" -p DATABASE_SERVICE_NAME="+caption+" -p POSTGRESQL_DATABASE="+params.get(DB_NAME)
-                + " -p POSTGRESQL_USER="+params.get(DB_USER)+" -p POSTGRESQL_PASSWORD="+params.get(DB_USER_PASSWORD)+" -p MEMORY_LIMIT="+params.get(MEMORY_SIZE)+"Mi -p POSTGRESQL_VERSION="+params.get(VERSION);
-        if(postgreSQL.equals("postgresql-persistent")){
+        String command="oc new-app "+mariaDB+" -p DATABASE_SERVICE_NAME="+caption+" -p  MYSQL_ROOT_PASSWORD="+params.get(DB_ROOT_PASSWORD)+" -p MYSQL_DATABASE="+params.get(DB_NAME)
+                + " -p MYSQL_USER="+params.get(DB_USER)+" -p MYSQL_PASSWORD="+params.get(DB_USER_PASSWORD)+" -p MEMORY_LIMIT="+params.get(MEMORY_SIZE)+"Mi -p MARIADB_VERSION="+params.get(VERSION);
+        if(mariaDB.equals("mariadb-persistent")){
             command+=" -p VOLUME_CAPACITY="+params.get(STORAGE_SIZE)+"Mi\n";
         }else{
             command+="\n";
