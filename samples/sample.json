@@ -9,8 +9,8 @@
 "id":"drag_21",
 "src":"images/postgresql.png",
 "action":"Persist",
-"x":"824px",
-"y":"488px",
+"x":"771px",
+"y":"452px",
 "caption":"creditdb",
 "params":[
 {"key":"DB Name",
@@ -40,45 +40,11 @@
 ,
 {
 "type":"MySQL",
-"id":"drag_19",
-"src":"images/mysql.png",
-"action":"Persist",
-"x":"557px",
-"y":"501px",
-"caption":"LoyaltyDB",
-"params":[
-{"key":"DB Name",
-"value":"loyaltydb"}
-,
-{"key":"DB Root Password",
-"value":"passw0rd"}
-,
-{"key":"DB User",
-"value":"loyalty"}
-,
-{"key":"DB User Password",
-"value":"loyalty"}
-,
-{"key":"External",
-"value":"FALSE"}
-,
-{"key":"Memory Size",
-"value":"512"}
-,
-{"key":"Storage Size",
-"value":"512"}
-],
-"dependencies":[
-]
-}
-,
-{
-"type":"MySQL",
 "id":"drag_17",
 "src":"images/mysql.png",
 "action":"Persist",
-"x":"351px",
-"y":"490px",
+"x":"349px",
+"y":"459px",
 "caption":"CustomerDB",
 "params":[
 {"key":"DB Name",
@@ -107,6 +73,40 @@
 }
 ,
 {
+"type":"MySQL",
+"id":"drag_19",
+"src":"images/mysql.png",
+"action":"Persist",
+"x":"541px",
+"y":"455px",
+"caption":"LoyaltyDB",
+"params":[
+{"key":"DB Name",
+"value":"loyaltydb"}
+,
+{"key":"DB Root Password",
+"value":"passw0rd"}
+,
+{"key":"DB User",
+"value":"loyalty"}
+,
+{"key":"DB User Password",
+"value":"loyalty"}
+,
+{"key":"External",
+"value":"FALSE"}
+,
+{"key":"Memory Size",
+"value":"512"}
+,
+{"key":"Storage Size",
+"value":"512"}
+],
+"dependencies":[
+]
+}
+,
+{
 "type":"Quarkus",
 "id":"drag_15",
 "src":"images/quarkus.png",
@@ -126,7 +126,7 @@
 ],
 "dependencies":[
 {"type":"PostgreSQL",
-"name":"CreditDB",
+"name":"creditdb",
 "text":"Persist"}
 ]
 }
