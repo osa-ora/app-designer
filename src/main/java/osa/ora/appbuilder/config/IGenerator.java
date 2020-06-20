@@ -23,6 +23,7 @@ public interface IGenerator {
     public static String DB_ROOT_PASSWORD="DB Root Password";
     public static String DB_USER="DB User";
     public static String DB_USER_PASSWORD="DB User Password";
+    public static String REDIS_USER_PASSWORD="Redis User Password";
     public static String REPLICA="Replica Count";
     
     //generator methods

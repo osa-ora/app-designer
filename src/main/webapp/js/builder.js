@@ -189,12 +189,12 @@ function generateDynamicParametersFields(element,onlyStorage){
                 dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="memory">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
                     ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="256" max="4096" step="256" onInput="document.getElementById(\'memory\').innerHTML = this.value+\'Mi\';"></div>';   
             }else if(element.getAttribute("param"+itemNo)=='External' || element.getAttribute("param"+itemNo)=='Native'){  
-                dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'</div>'+
+                dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'<br>'+
                     ' <input type="checkbox" id="param'+itemNo+'" ';
                 if(element.getAttribute('param'+itemNo+'_value')=='TRUE'){
-                    dynamic_parameters+='checked>';
+                    dynamic_parameters+='checked></div>';
                 }else{
-                    dynamic_parameters+='>';
+                    dynamic_parameters+='></div>';
                 }
             } else{
                 dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'</div>'+

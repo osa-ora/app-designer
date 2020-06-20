@@ -78,8 +78,6 @@
                 </td></tr>
                 <tr><td style="border:1px solid black;">
                 <img src="images/kafka.png" alt="Kafka" action="Pub/Sub" title="Kafka" draggable="true" ondragstart="drag(event)" id="drag17" width="50" height="50">
-                </td><td style="border:1px solid black;">
-                <img src="images/redis.png" alt="Redis" action="Cache" title="Redis" draggable="true" ondragstart="drag(event)" id="drag18" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
                 <img src="images/net_core.png" alt=".Net" action="REST" title=".NetCore" draggable="true" ondragstart="drag(event)" id="drag19" width="50" height="50">

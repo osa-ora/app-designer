@@ -14,6 +14,7 @@ import osa.ora.appbuilder.generators.MongoDBGenerator;
 import osa.ora.appbuilder.generators.MySQLGenerator;
 import osa.ora.appbuilder.generators.PostgreSQLGenerator;
 import osa.ora.appbuilder.generators.QuarkusGenerator;
+import osa.ora.appbuilder.generators.RedisGenerator;
 import osa.ora.appbuilder.generators.TomcatGenerator;
 
 /**
@@ -25,6 +26,10 @@ public class GenConfig {
     private final Map<String, IGenerator> generatorList=new HashMap<String, IGenerator>();
     //singleton class
     private static GenConfig genConfig;
+    /**
+     * Method to return the singleton instance 
+     * @return 
+     */
     public static GenConfig getInstance(){
         if(genConfig==null) genConfig=new GenConfig();
         return genConfig;
@@ -50,7 +55,14 @@ public class GenConfig {
        generatorList.put(jbossGenerator.getName().toUpperCase(), jbossGenerator);
        IGenerator javeGenerator=new JavaGenerator();
        generatorList.put(javeGenerator.getName().toUpperCase(), javeGenerator);    
+       IGenerator redisGenerator=new RedisGenerator();
+       generatorList.put(redisGenerator.getName().toUpperCase(), redisGenerator);     
     }
+    /**
+     * Method to return the generator for a type
+     * @param type
+     * @return IGenerator of that type
+     */
     public IGenerator getGeneratorForType(String type){
         if(getGeneratorList().get(type)!=null){
             return getGeneratorList().get(type);
@@ -59,6 +71,7 @@ public class GenConfig {
     } 
 
     /**
+     * Method to return Map of all available generators
      * @return the generatorList
      */
     public Map<String, IGenerator> getGeneratorList() {
