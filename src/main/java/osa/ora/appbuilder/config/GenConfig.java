@@ -15,6 +15,7 @@ import osa.ora.appbuilder.generators.MySQLGenerator;
 import osa.ora.appbuilder.generators.PostgreSQLGenerator;
 import osa.ora.appbuilder.generators.QuarkusGenerator;
 import osa.ora.appbuilder.generators.RedisGenerator;
+import osa.ora.appbuilder.generators.SpringBootGenerator;
 import osa.ora.appbuilder.generators.TomcatGenerator;
 
 /**
@@ -55,6 +56,8 @@ public class GenConfig {
        generatorList.put(jbossGenerator.getName().toUpperCase(), jbossGenerator);
        IGenerator javeGenerator=new JavaGenerator();
        generatorList.put(javeGenerator.getName().toUpperCase(), javeGenerator);    
+       IGenerator springBootGenerator=new SpringBootGenerator();
+       generatorList.put(springBootGenerator.getName().toUpperCase(), springBootGenerator);  
        IGenerator redisGenerator=new RedisGenerator();
        generatorList.put(redisGenerator.getName().toUpperCase(), redisGenerator);     
     }

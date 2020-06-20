@@ -61,10 +61,7 @@
                     <td colspan="2"><hr></td>
                 </tr>
                 <tr><td style="border:1px solid black;">
-                <img src="images/spring-boot.png" alt="SpringBoot" action="REST" title="SpringBoot" draggable="true" ondragstart="drag(event)" id="drag13" 
-                     param1="External" param2="Replica Count"
-                     param1_value="FALSE" param2_value="2"
-                     width="50" height="50">
+                <img src="images/kafka.png" alt="Kafka" action="Pub/Sub" title="Kafka" draggable="true" ondragstart="drag(event)" id="drag17" width="50" height="50">
                 </td><td style="border:1px solid black;">
                 <img src="images/nodejs.png" alt="NodeJS" title="NodeJS" action="REST" draggable="true" ondragstart="drag(event)" id="drag14" 
                      param1="External" param2="Replica Count"
@@ -75,9 +72,6 @@
                 <img src="images/activemq.png" alt="ActiveMQ" action="Pub/Sub" title="ActiveMQ" draggable="true" ondragstart="drag(event)" id="drag16" width="50" height="50">
                 </td><td style="border:1px solid black;">
                 <img src="images/knative.png" alt="KNative" action="REST" title="KNative" draggable="true" ondragstart="drag(event)" id="drag21" width="50" height="50">
-                </td></tr>
-                <tr><td style="border:1px solid black;">
-                <img src="images/kafka.png" alt="Kafka" action="Pub/Sub" title="Kafka" draggable="true" ondragstart="drag(event)" id="drag17" width="50" height="50">
                 </td></tr>
                 <tr><td style="border:1px solid black;">
                 <img src="images/net_core.png" alt=".Net" action="REST" title=".NetCore" draggable="true" ondragstart="drag(event)" id="drag19" width="50" height="50">
