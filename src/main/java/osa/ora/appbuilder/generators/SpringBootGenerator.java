@@ -106,7 +106,7 @@ public class SpringBootGenerator implements IGenerator{
     private String addDependencies(Dependency[] dependencies){
         String allDep="";
         //generic dependencies
-        allDep+="jersey";
+        allDep+="jersey,actuator,web,jpa";
         //user specific depdenencies
         for(Dependency dep:dependencies){
             dep.setType(dep.getType().toUpperCase());
@@ -114,22 +114,21 @@ public class SpringBootGenerator implements IGenerator{
                 case "MYSQL":
                     allDep+=",mysql";
                     break;
-                //TODO: Need to be fixed
-                /*case "POSTGRESQL":
-                    allDep+=",postgres";
+                case "POSTGRESQL":
+                    allDep+=",postgresql";
                     break;
-                case "MONGODB":
+                /*case "MONGODB":
                     allDep+=",data-mongodb";
-                    break;
+                    break;*/
                 case "REDIS":
-                    allDep+=",data-redis";
+                    allDep+=",redis";
                     break;
                 case "ACTIVEMQ":
                     allDep+=",artemis";
                     break;
                 case "KAFKA":
                     allDep+=",kafka";
-                    break;*/
+                    break;
                 default:
                     break;
             }
