@@ -9,6 +9,9 @@ var canvas_height=600;
 var currentFormatVersion=1.0;
 var max_params=10;
 var withStorage=false;
+var max_storage=4096;
+var max_memory=4096;
+var max_replica=12;
 //function to start/end the connection between 2 components
 function startLine(source){
     //display the selected item details
@@ -64,11 +67,11 @@ function drawLine(obj1, obj2){
         ylocation=' fromY="1" toY="0" ';
     }	
     //add connection element
-    document.getElementById("pannel").innerHTML+=createConnection(obj1+'_'+obj2,'#'+obj1,'#'+obj2,"red",caption,xlocation,ylocation);
+    document.getElementById("pannel").innerHTML+=createConnection(obj1+'_'+obj2,'#'+obj1,'#'+obj2,"darkblue",caption,xlocation,ylocation);
 }
 //function to create connection
 function createConnection(id,obj1,obj2,color,caption,ylocation,xlocation){
-    var connection= '<connection id="'+id+'" from="'+obj1+'" to="'+obj2+'" color="darkblue" text="'+caption+'" onclick="removeConnect('+id+',\''+caption+'\');"'+ylocation+xlocation+' tail></connection>';
+    var connection= '<connection id="'+id+'" from="'+obj1+'" to="'+obj2+'" color="'+color+'" text="'+caption+'" onclick="removeConnect('+id+',\''+caption+'\');"'+ylocation+xlocation+' tail></connection>';
     return connection;
 }
 //function to edit caption/remove connection
@@ -113,7 +116,7 @@ function drop(ev) {
     if(my_element==null) return;
     if(ev.target.id=='pannel'){
         if(my_element.id.indexOf("_")==-1) {
-            var caption = prompt("Please enter name", "Service");
+            var caption = prompt("Please enter name", my_element.alt);
             counter++;
             //make sure no other existing element has the same id
             while(document.getElementById('drag_'+counter)!=null){
@@ -170,7 +173,7 @@ function generateDynamicParametersFields(element,onlyStorage){
          while(element.getAttribute("param"+itemNo)!=null){
             if(element.getAttribute("param"+itemNo)=='Storage Size'){  
                 dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="storage">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
-                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="0" max="4096" step="256" onInput="document.getElementById(\'storage\').innerHTML = this.value+\'Mi\';"></div>';   
+                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="0" max="'+max_storage+'" step="256" onInput="document.getElementById(\'storage\').innerHTML = this.value+\'Mi\';"></div>';   
             }
             itemNo++;
             //max 10 parameters
@@ -181,13 +184,13 @@ function generateDynamicParametersFields(element,onlyStorage){
             //special case for replica and storage/memory
             if(element.getAttribute("param"+itemNo)=='Replica Count'){  
                 dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="replica">'+element.getAttribute('param'+itemNo+'_value')+'</span></p>'+
-                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="1" max="12" step="1" onInput="document.getElementById(\'replica\').innerHTML = this.value;"></div>';   
+                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="1" max="'+max_replica+'" step="1" onInput="document.getElementById(\'replica\').innerHTML = this.value;"></div>';   
             }else if(element.getAttribute("param"+itemNo)=='Storage Size'){  
                 dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="storage">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
-                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="0" max="4096" step="256" onInput="document.getElementById(\'storage\').innerHTML = this.value+\'Mi\';"></div>';   
+                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="0" max="'+max_storage+'" step="256" onInput="document.getElementById(\'storage\').innerHTML = this.value+\'Mi\';"></div>';   
             }else if(element.getAttribute("param"+itemNo)=='Memory Size'){  
                 dynamic_parameters+=' <div class="slidecontainer"><p>'+element.getAttribute("param"+itemNo)+' <span id="memory">'+element.getAttribute('param'+itemNo+'_value')+'Mi</span></p>'+
-                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="256" max="4096" step="256" onInput="document.getElementById(\'memory\').innerHTML = this.value+\'Mi\';"></div>';   
+                    ' <input id="param'+itemNo+'" value="'+element.getAttribute('param'+itemNo+'_value')+'" class="slider2" type="range" min="256" max="'+max_memory+'" step="256" onInput="document.getElementById(\'memory\').innerHTML = this.value+\'Mi\';"></div>';   
             }else if(element.getAttribute("param"+itemNo)=='External' || element.getAttribute("param"+itemNo)=='Native'){  
                 dynamic_parameters+=' <div>'+element.getAttribute("param"+itemNo)+'<br>'+
                     ' <input type="checkbox" id="param'+itemNo+'" ';
@@ -502,7 +505,7 @@ function loadJSON(mydata){
         content+=createComponent(mydata.components[i].src,mydata.components[i].type,mydata.components[i].id,mydata.components[i].x,mydata.components[i].y,key,xx,yy,mydata.components[i].caption,mydata.components[i].action,dynamicParams);
     }
     for (var i=0; i < mydata.connections.length; i++) {
-        content+=createConnection(mydata.connections[i].id,mydata.connections[i].from,mydata.connections[i].to,"red",mydata.connections[i].text,' fromX='+mydata.connections[i].fromX+' toX='+mydata.connections[i].toX,' fromY='+mydata.connections[i].fromY+' toY='+mydata.connections[i].toY);
+        content+=createConnection(mydata.connections[i].id,mydata.connections[i].from,mydata.connections[i].to,"darkblue",mydata.connections[i].text,' fromX='+mydata.connections[i].fromX+' toX='+mydata.connections[i].toX,' fromY='+mydata.connections[i].fromY+' toY='+mydata.connections[i].toY);
     }
     document.getElementById("pannel").innerHTML=content;
     create();
